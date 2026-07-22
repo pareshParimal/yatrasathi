@@ -27,7 +27,7 @@ public class TelegramBotService {
     }
 
     public void sendLocationUpdate(String userName, String destinationName, double latitude, double longitude, String specialRequirements) {
-        String chatId = "664981833"; // For demo purposes, you can change this to a real ID or fetch from DB
+        String chatId = "645009356"; // For demo purposes, you can change this to a real ID or fetch from DB
         
         String mapLink = "https://maps.google.com/?q=" + latitude + "," + longitude;
         
