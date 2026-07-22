@@ -22,9 +22,9 @@ public class GeminiService {
     }
 
     public Mono<String> generateContent(String prompt) {
-        if ("mock_key".equals(apiKey)) {
+        if ("mock_key".equals(apiKey) || "mock".equals(apiKey)) {
             log.info("Using mock Gemini response since no real GEMINI_API_KEY is provided.");
-            return Mono.just("This is a simulated response from the AI. Provide a real GEMINI_API_KEY in the environment to get actual answers.");
+            return Mono.just("This is a simulated safety check-in. The user is safe.");
         }
 
         Map<String, Object> requestBody = Map.of(
