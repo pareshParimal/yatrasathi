@@ -22,12 +22,12 @@ public class TelegramBotService {
                               @Value("${TELEGRAM_BOT_TOKEN:mock_token}") String botToken,
                               GeminiService geminiService) {
         this.botToken = botToken;
-        this.webClient = webClientBuilder.baseUrl("https://api.telegram.org/bot" + botToken).build();
+        this.webClient = webClientBuilder.clone().baseUrl("https://api.telegram.org/bot" + botToken).build();
         this.geminiService = geminiService;
     }
 
-    public void sendLocationUpdate(String userName, String destinationName, double latitude, double longitude, String specialRequirements) {
-        String chatId = "645009356"; // For demo purposes, you can change this to a real ID or fetch from DB
+    public void sendLocationUpdate(java.util.List<String> chatIds, String userName, String destinationName, double latitude, double longitude, String specialRequirements) {
+        if (chatIds == null || chatIds.isEmpty()) return;
         
         String mapLink = "https://maps.google.com/?q=" + latitude + "," + longitude;
         
@@ -40,7 +40,9 @@ public class TelegramBotService {
                 "Keep it under 3 sentences.";
 
         geminiService.generateContent(prompt).subscribe(message -> {
-            sendMessage(chatId, message).subscribe();
+            for (String chatId : chatIds) {
+                sendMessage(chatId, message).subscribe();
+            }
         });
     }
 

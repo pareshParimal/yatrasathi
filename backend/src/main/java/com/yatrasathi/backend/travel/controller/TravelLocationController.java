@@ -21,6 +21,7 @@ public class TravelLocationController {
 
     private final TravelPlanRepository travelPlanRepository;
     private final TelegramBotService telegramBotService;
+    private final com.yatrasathi.backend.location.repository.LocationContactRepository contactRepository;
 
     @PostMapping("/{planId}/location")
     public ResponseEntity<ApiResponse<String>> updateLocation(
@@ -51,7 +52,16 @@ public class TravelLocationController {
 
         // Trigger Telegram update
         String destName = plan.getDestination() != null ? plan.getDestination().getName() : "Unknown destination";
+        
+        java.util.List<com.yatrasathi.backend.location.entity.LocationSharingContact> contacts = 
+                contactRepository.findByUserIdAndIsActiveTrue(userId);
+        
+        java.util.List<String> chatIds = contacts.stream()
+                .map(com.yatrasathi.backend.location.entity.LocationSharingContact::getTelegramChatId)
+                .collect(java.util.stream.Collectors.toList());
+
         telegramBotService.sendLocationUpdate(
+                chatIds,
                 plan.getUser().getFullName(),
                 destName,
                 request.getLatitude(),

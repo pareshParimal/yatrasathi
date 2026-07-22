@@ -17,7 +17,7 @@ public class GeminiService {
     private final String apiKey;
 
     public GeminiService(WebClient.Builder webClientBuilder, @Value("${gemini.api.key:mock_key}") String apiKey) {
-        this.webClient = webClientBuilder.baseUrl("https://generativelanguage.googleapis.com/v1beta").build();
+        this.webClient = webClientBuilder.clone().baseUrl("https://generativelanguage.googleapis.com/v1beta").build();
         this.apiKey = apiKey;
     }
 
