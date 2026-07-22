@@ -123,8 +123,10 @@ public class TelegramBotService {
                         if (!"private".equals(type)) continue;
 
                         String chatId = String.valueOf(chat.get("id"));
-                        String firstName = (String) chat.getOrDefault("first_name", "Unknown");
-                        String lastName = (String) chat.getOrDefault("last_name", "");
+                        Object firstNameObj = chat.get("first_name");
+                        Object lastNameObj = chat.get("last_name");
+                        String firstName = firstNameObj != null ? String.valueOf(firstNameObj) : "Unknown";
+                        String lastName = lastNameObj != null ? String.valueOf(lastNameObj) : "";
 
                         String displayName = firstName + (lastName.isEmpty() ? "" : " " + lastName);
 
