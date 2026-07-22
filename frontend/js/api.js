@@ -56,5 +56,11 @@ export const api = {
 
     // Auth
     requestOtp: (data) => fetchAPI('/auth/request-otp', { method: 'POST', body: JSON.stringify(data) }),
-    verifyOtp: (data) => fetchAPI('/auth/verify-otp', { method: 'POST', body: JSON.stringify(data) })
+    verifyOtp: (data) => fetchAPI('/auth/verify-otp', { method: 'POST', body: JSON.stringify(data) }),
+
+    // Emergency Contacts
+    getEmergencyContacts: () => fetchAPI('/location/contacts'),
+    addEmergencyContact: (data) => fetchAPI('/location/contacts', { method: 'POST', body: JSON.stringify(data) }),
+    deleteEmergencyContact: (contactId) => fetchAPI(`/location/contacts/${contactId}`, { method: 'DELETE' }),
+    getTelegramUsers: () => fetchAPI('/location/telegram-users'),
 };

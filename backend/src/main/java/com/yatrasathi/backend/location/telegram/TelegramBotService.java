@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.yatrasathi.backend.chat.service.GeminiService;
@@ -86,6 +89,58 @@ public class TelegramBotService {
                 .onErrorResume(e -> {
                     log.error("Failed to send message via Telegram API", e);
                     return Mono.just(false);
+                });
+    }
+
+    /**
+     * Calls the Telegram Bot API's getUpdates endpoint and extracts
+     * a deduplicated list of users who have messaged the bot.
+     * Returns a list of maps, each containing "chatId" and "firstName".
+     */
+    @SuppressWarnings("unchecked")
+    public Mono<List<Map<String, String>>> getRecentUsers() {
+        if ("mock_token".equals(botToken)) {
+            log.info("Mock Telegram: Returning empty user list (no real token).");
+            return Mono.just(List.of());
+        }
+
+        return webClient.get()
+                .uri("/getUpdates")
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> {
+                    LinkedHashMap<String, Map<String, String>> uniqueUsers = new LinkedHashMap<>();
+                    List<Map<String, Object>> results = (List<Map<String, Object>>) response.getOrDefault("result", List.of());
+
+                    for (Map<String, Object> update : results) {
+                        Map<String, Object> message = (Map<String, Object>) update.get("message");
+                        if (message == null) continue;
+
+                        Map<String, Object> chat = (Map<String, Object>) message.get("chat");
+                        if (chat == null) continue;
+
+                        String type = (String) chat.getOrDefault("type", "");
+                        if (!"private".equals(type)) continue;
+
+                        String chatId = String.valueOf(chat.get("id"));
+                        String firstName = (String) chat.getOrDefault("first_name", "Unknown");
+                        String lastName = (String) chat.getOrDefault("last_name", "");
+
+                        String displayName = firstName + (lastName.isEmpty() ? "" : " " + lastName);
+
+                        uniqueUsers.putIfAbsent(chatId, Map.of(
+                                "chatId", chatId,
+                                "name", displayName
+                        ));
+                    }
+
+                    List<Map<String, String>> result = new ArrayList<>(uniqueUsers.values());
+                    return result;
+                })
+                .onErrorResume(e -> {
+                    log.error("Failed to fetch updates from Telegram API", e);
+                    List<Map<String, String>> empty = new ArrayList<>();
+                    return Mono.just(empty);
                 });
     }
 }

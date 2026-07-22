@@ -54,6 +54,12 @@ export const renderHome = async (rootElement) => {
                 <button class="btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.5rem;" onclick="alert('Food directory coming soon!')">View Options</button>
             </div>
 
+            <div class="card feature-card" id="btn-open-contacts" style="cursor: pointer;">
+                <i data-lucide="shield" style="width: 48px; height: 48px; color: #dc2626; margin-bottom: 1rem;"></i>
+                <h2>Emergency Contacts</h2>
+                <p class="text-muted">Add family members who will receive your live location updates via Telegram during trips.</p>
+            </div>
+
         </div>
 
         <!-- DETAILS MODAL -->
@@ -77,6 +83,19 @@ export const renderHome = async (rootElement) => {
                 
                 <div id="food-modal-body">
                     <div style="text-align: center; padding: 2rem;"><i data-lucide="loader-2" class="lucide-spin"></i> Fetching stations...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMERGENCY CONTACTS MODAL -->
+        <div id="contacts-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1002; align-items: center; justify-content: center;">
+            <div class="card" style="width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; background: white; padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1rem;">
+                    <h2 style="margin: 0; display: flex; align-items: center; gap: 8px; color: #dc2626;"><i data-lucide="shield"></i> Emergency Contacts</h2>
+                    <button id="btn-close-contacts" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+                <div id="contacts-modal-body">
+                    <div style="text-align: center; padding: 2rem;"><i data-lucide="loader-2" class="lucide-spin"></i> Loading...</div>
                 </div>
             </div>
         </div>
@@ -407,5 +426,138 @@ export const renderHome = async (rootElement) => {
                 }
             });
         });
+    };
+
+    // ========== EMERGENCY CONTACTS MODAL ==========
+
+    const contactsModal = document.getElementById('contacts-modal');
+    const contactsBody = document.getElementById('contacts-modal-body');
+
+    document.getElementById('btn-open-contacts').addEventListener('click', () => {
+        contactsModal.style.display = 'flex';
+        loadContactsModal();
+    });
+
+    document.getElementById('btn-close-contacts').addEventListener('click', () => {
+        contactsModal.style.display = 'none';
+    });
+
+    const loadContactsModal = async () => {
+        contactsBody.innerHTML = '<div style="text-align: center; padding: 2rem;"><i data-lucide="loader-2" class="lucide-spin"></i> Loading...</div>';
+        lucide.createIcons();
+
+        try {
+            const [contacts, telegramUsers] = await Promise.all([
+                api.getEmergencyContacts(),
+                api.getTelegramUsers()
+            ]);
+
+            // Build the contact list
+            let contactListHtml = '';
+            if (contacts && contacts.length > 0) {
+                contactListHtml = contacts.map(c => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <div>
+                            <strong style="font-size: 1rem;">${c.contactName}</strong>
+                            <div style="font-size: 0.85rem; color: #6b7280;">Chat ID: ${c.telegramChatId}</div>
+                        </div>
+                        <button class="btn-delete-contact" data-id="${c.id}" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.3rem;" title="Remove contact">
+                            <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                contactListHtml = `
+                    <div style="padding: 1rem; text-align: center; color: #6b7280; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 0.9rem;">
+                        No emergency contacts added yet.
+                    </div>
+                `;
+            }
+
+            // Build the Telegram user dropdown options
+            let telegramOptions = '<option value="">-- Select a Telegram user --</option>';
+            if (telegramUsers && telegramUsers.length > 0) {
+                telegramOptions += telegramUsers.map(u => `<option value="${u.chatId}">${u.name} (ID: ${u.chatId})</option>`).join('');
+            } else {
+                telegramOptions = '<option value="">No users found — ask contacts to message your bot first</option>';
+            }
+
+            contactsBody.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;">Your Contacts</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${contactListHtml}
+                    </div>
+                </div>
+
+                <div style="background: #eef2ff; padding: 1.2rem; border-radius: 8px;">
+                    <h3 style="margin: 0 0 0.8rem 0; font-size: 1rem; color: var(--primary);">Add New Contact</h3>
+
+                    <p style="font-size: 0.85rem; color: #4b5563; margin: 0 0 1rem 0;">
+                        Ask your family member to open <strong>@YatraSathiBot</strong> on Telegram and click <strong>Start</strong>. They will then appear in the dropdown below.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div>
+                            <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 4px;">Contact Name</label>
+                            <input type="text" id="new-contact-name" class="form-control" placeholder="e.g., Son - Rahul" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 4px;">Select from Telegram</label>
+                            <select id="new-contact-telegram" class="form-control" style="width: 100%;">
+                                ${telegramOptions}
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="btn-add-contact" style="padding: 0.6rem;">
+                            <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i> Add Contact
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+
+            // Wire up "Add Contact" button
+            document.getElementById('btn-add-contact').addEventListener('click', async () => {
+                const name = document.getElementById('new-contact-name').value.trim();
+                const chatId = document.getElementById('new-contact-telegram').value;
+
+                if (!name) { alert('Please enter a contact name.'); return; }
+                if (!chatId) { alert('Please select a Telegram user.'); return; }
+
+                const btn = document.getElementById('btn-add-contact');
+                btn.disabled = true;
+                btn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin" style="width: 16px; height: 16px;"></i> Adding...';
+                lucide.createIcons();
+
+                try {
+                    await api.addEmergencyContact({ contactName: name, telegramChatId: chatId });
+                    loadContactsModal(); // Reload the modal
+                } catch (err) {
+                    alert('Failed to add contact: ' + err.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-lucide="user-plus" style="width: 16px; height: 16px;"></i> Add Contact';
+                    lucide.createIcons();
+                }
+            });
+
+            // Wire up delete buttons
+            document.querySelectorAll('.btn-delete-contact').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const contactId = e.currentTarget.getAttribute('data-id');
+                    if (!confirm('Remove this emergency contact?')) return;
+
+                    try {
+                        await api.deleteEmergencyContact(contactId);
+                        loadContactsModal(); // Reload
+                    } catch (err) {
+                        alert('Failed to remove contact: ' + err.message);
+                    }
+                });
+            });
+
+        } catch (error) {
+            contactsBody.innerHTML = `<div style="color: red; padding: 1rem; text-align: center;">Failed to load contacts: ${error.message}</div>`;
+        }
     };
 };
