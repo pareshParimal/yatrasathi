@@ -1,0 +1,17 @@
+INSERT INTO places (id, name, state, latitude, longitude, status, created_at, updated_at) VALUES 
+(gen_random_uuid(), 'Mahabalipuram', 'Tamil Nadu', 12.6269, 80.1927, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Agra', 'Uttar Pradesh', 27.1767, 78.0081, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'New Delhi', 'Delhi', 28.6139, 77.2090, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Gwalior', 'Madhya Pradesh', 26.2183, 78.1828, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Mathura', 'Uttar Pradesh', 27.4924, 77.6737, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Hampi Temples', 'Karnataka', 15.3350, 76.4600, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Chola Temples', 'Tamil Nadu', 10.7828, 79.1318, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Meenakshi Temple', 'Tamil Nadu', 9.9195, 78.1193, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Maharashtra', 'Maharashtra', 19.9320, 73.5309, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Gujarat', 'Gujarat', 20.8880, 70.4012, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Madhya Pradesh', 'Madhya Pradesh', 23.1765, 75.7682, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Uttar Pradesh', 'Uttar Pradesh', 25.3109, 83.0107, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Uttarakhand', 'Uttarakhand', 30.7352, 79.0669, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Jharkhand', 'Jharkhand', 24.4930, 86.7000, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Andhra Pradesh', 'Andhra Pradesh', 16.0716, 78.8666, 'PUBLISHED', NOW(), NOW()),
+(gen_random_uuid(), 'Jyotirlingas of Tamil Nadu', 'Tamil Nadu', 9.2876, 79.3129, 'PUBLISHED', NOW(), NOW());
