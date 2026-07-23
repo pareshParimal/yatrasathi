@@ -2,6 +2,7 @@ package com.yatrasathi.backend.auth.service;
 
 import com.yatrasathi.backend.auth.dto.AuthResponse;
 import com.yatrasathi.backend.auth.dto.OtpVerificationRequest;
+import com.yatrasathi.backend.auth.dto.RequestOtpResponse;
 import com.yatrasathi.backend.auth.entity.User;
 import com.yatrasathi.backend.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,16 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
-    public void generateOtp(String phone) {
-        // In a real application, we would integrate with an SMS gateway (like Twilio, AWS SNS, etc.)
-        // For this hackathon MVP, we will simulate the OTP generation and log it to the console.
+    public RequestOtpResponse generateOtp(String phone) {
+
         log.info("Simulating OTP Generation for phone {}. Use '123456' to verify.", phone);
+
+        boolean isNewUser = userRepository.findByPhone(phone).isEmpty();
+
+        return RequestOtpResponse.builder()
+            .message("OTP sent successfully. (Check server logs, simulation is 123456)")
+            .isNewUser(isNewUser)
+            .build();
     }
 
     public AuthResponse verifyOtp(OtpVerificationRequest request) {

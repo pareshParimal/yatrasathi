@@ -20,7 +20,7 @@ class AppRouter {
         window.addEventListener('hashchange', () => this.handleRoute());
         
         // Setup emergency button
-        document.getElementById('btn-emergency').addEventListener('click', this.handleEmergency.bind(this));
+    //    document.getElementById('btn-emergency').addEventListener('click', this.handleEmergency.bind(this));
         
         // Setup logout button
         const logoutBtn = document.getElementById('nav-logout');
@@ -48,14 +48,14 @@ class AppRouter {
         const userId = localStorage.getItem('yatra_user_id');
 
         const logoutBtn = document.getElementById('nav-logout');
-        const emergencyBtn = document.getElementById('btn-emergency');
+     //   const emergencyBtn = document.getElementById('btn-emergency');
 
         if (userId) {
             logoutBtn.style.display = 'block';
-            emergencyBtn.style.display = 'block';
+  //          emergencyBtn.style.display = 'block';
         } else {
             logoutBtn.style.display = 'none';
-            emergencyBtn.style.display = 'none';
+   //         emergencyBtn.style.display = 'none';
         }
         if (!userId && view !== 'login') {
             window.location.hash = '#login';

@@ -3,8 +3,11 @@ package com.yatrasathi.backend.auth.controller;
 import com.yatrasathi.backend.auth.dto.AuthResponse;
 import com.yatrasathi.backend.auth.dto.LoginRequest;
 import com.yatrasathi.backend.auth.dto.OtpVerificationRequest;
+import com.yatrasathi.backend.auth.dto.RequestOtpResponse;
+import com.yatrasathi.backend.auth.repository.UserRepository;
 import com.yatrasathi.backend.auth.service.AuthService;
 import com.yatrasathi.backend.common.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,11 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @PostMapping("/request-otp")
-    public ResponseEntity<ApiResponse<String>> requestOtp(@RequestBody LoginRequest request) {
-        authService.generateOtp(request.getPhone());
-        return ResponseEntity.ok(ApiResponse.success("OTP sent successfully. (Check server logs, simulation is 123456)"));
+    public ApiResponse<RequestOtpResponse> requestOtp(@Valid @RequestBody LoginRequest request) {
+        return ApiResponse.success(authService.generateOtp(request.getPhone())
+        );
     }
 
     @PostMapping("/verify-otp")
