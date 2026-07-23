@@ -22,22 +22,64 @@ export const renderChat = async (rootElement) => {
                 <!-- Welcome Message -->
                 <div style="align-self: flex-start; max-width: 80%;">
                     <div style="background-color: #f1f5f9; padding: 1rem 1.5rem; border-radius: 20px 20px 20px 0; color: var(--text-main);">
-                        Namaste! 🙏 I am your YatraSathi AI Assistant. How can I help you with your journey today?
+                        Namaste! 🙏 I am your YatraSathi AI Assistant. I can help you plan a trip, book a wheelchair, and order food. What would you like to do?
                     </div>
                 </div>
 
+                <!-- Suggestion Chips -->
+                <div id="suggestion-chips" style="display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 0.5rem; align-self: flex-start; max-width: 100%;">
+                    <button class="chip-btn" data-text="Plan a trip from Lucknow to Ayodhya" data-i18n="chip_plan_trip">Plan a trip</button>
+                    <button class="chip-btn" data-text="I need wheelchair assistance" data-i18n="chip_wheelchair">Need a wheelchair</button>
+                    <button class="chip-btn" data-text="Find pure veg food options" data-i18n="chip_veg_food">Find Veg Food</button>
+                    <button class="chip-btn" data-text="What is the hotel distance from station?" data-i18n="chip_hotel_dist">Hotel distance?</button>
+                    <button class="chip-btn" data-text="I want morning trains" data-i18n="chip_morning_trains">Morning Trains</button>
+                </div>
             </div>
 
             <!-- Input Area -->
-            <div style="padding: 1.5rem; border-top: 1px solid #e2e8f0; background: var(--bg-surface); border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+            <div style="padding: 1.5rem; border-top: 1px solid #e2e8f0; background: var(--bg-surface); border-radius: 0 0 var(--radius-lg) var(--radius-lg); position: relative;">
+                
+                <!-- Pulse animation for mic -->
+                <style>
+                    @keyframes pulse-ring {
+                        0% { transform: scale(1); opacity: 0.8; }
+                        100% { transform: scale(1.5); opacity: 0; }
+                    }
+                    .mic-listening::before {
+                        content: '';
+                        position: absolute;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        border-radius: 50%;
+                        background-color: #ef4444;
+                        animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+                        z-index: -1;
+                    }
+                    .chip-btn {
+                        background-color: #e2e8f0;
+                        border: none;
+                        border-radius: 20px;
+                        padding: 0.5rem 1rem;
+                        font-size: 0.9rem;
+                        color: #334155;
+                        cursor: pointer;
+                        white-space: nowrap;
+                        transition: background-color 0.2s;
+                    }
+                    .chip-btn:hover {
+                        background-color: #cbd5e1;
+                    }
+                </style>
+
                 <form id="chat-form" style="display: flex; gap: 1rem; align-items: center;">
-                    <button type="button" id="btn-mic" style="background: none; border: none; cursor: pointer; color: var(--primary); padding: 0.5rem; border-radius: 50%; transition: all 0.3s; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background-color: rgba(37, 99, 235, 0.1);">
-                        <i data-lucide="mic" id="icon-mic" style="width: 24px; height: 24px;"></i>
-                    </button>
+                    <div style="position: relative;">
+                        <button type="button" id="btn-mic" style="background: none; border: none; cursor: pointer; color: white; padding: 1rem; border-radius: 50%; transition: all 0.3s; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background-color: var(--primary); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <i data-lucide="mic" id="icon-mic" style="width: 32px; height: 32px;"></i>
+                        </button>
+                    </div>
                     
-                    <input type="text" id="chat-input" class="form-control" placeholder="Type or tap the microphone to speak..." style="flex: 1;" autocomplete="off" required>
+                    <input type="text" id="chat-input" class="form-control" placeholder="Tap the big microphone to speak..." style="flex: 1; height: 50px; font-size: 1.1rem;" autocomplete="off" required>
                     
-                    <button type="submit" class="btn-primary" id="btn-send" style="padding: 0 1.5rem; display: flex; align-items: center; justify-content: center; height: 48px;">
+                    <button type="submit" class="btn-primary" id="btn-send" style="padding: 0 1.5rem; display: flex; align-items: center; justify-content: center; height: 50px; border-radius: 25px;">
                         <i data-lucide="send"></i>
                     </button>
                 </form>
@@ -45,6 +87,11 @@ export const renderChat = async (rootElement) => {
         </div>
     `;
     lucide.createIcons();
+
+    // Trigger translation after updating innerHTML
+    if (window.i18n && typeof window.i18n.updatePageContent === 'function') {
+        window.i18n.updatePageContent();
+    }
 
     const form = document.getElementById('chat-form');
     const input = document.getElementById('chat-input');
@@ -65,15 +112,15 @@ export const renderChat = async (rootElement) => {
     // Initialize Web Speech API for TTS
     const speakText = (text) => {
         if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
-
+        
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
-
+        
         const utterance = new SpeechSynthesisUtterance(text);
         // Optimize for elderly: slightly slower rate, higher pitch for clarity
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
-
+        
         // Try to find an English (India) voice if available
         const voices = window.speechSynthesis.getVoices();
         const indianVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
@@ -106,10 +153,11 @@ export const renderChat = async (rootElement) => {
 
         recognition.onstart = () => {
             isListening = true;
-            btnMic.style.backgroundColor = '#fee2e2'; // Light red
-            btnMic.style.color = '#dc2626'; // Dark red
-            iconMic.setAttribute('data-lucide', 'mic'); // Can add pulse animation in CSS if wanted
-            input.placeholder = "Listening...";
+            btnMic.style.backgroundColor = '#ef4444'; // Red for listening
+            btnMic.style.color = 'white'; 
+            btnMic.parentElement.classList.add('mic-listening');
+            iconMic.setAttribute('data-lucide', 'mic');
+            input.placeholder = "Listening... Speak now";
             lucide.createIcons();
         };
 
@@ -124,7 +172,7 @@ export const renderChat = async (rootElement) => {
                     interimTranscript += event.results[i][0].transcript;
                 }
             }
-
+            
             input.value = finalTranscript || interimTranscript;
         };
 
@@ -137,7 +185,6 @@ export const renderChat = async (rootElement) => {
             stopListening();
             // Automatically submit if there is text
             if (input.value.trim() !== '') {
-                // We dispatch a submit event instead of manually calling submit to ensure event listeners fire
                 form.dispatchEvent(new Event('submit'));
             }
         };
@@ -149,14 +196,15 @@ export const renderChat = async (rootElement) => {
 
     const stopListening = () => {
         isListening = false;
-        btnMic.style.backgroundColor = 'rgba(37, 99, 235, 0.1)';
-        btnMic.style.color = 'var(--primary)';
-        input.placeholder = "Type or tap the microphone to speak...";
+        btnMic.style.backgroundColor = 'var(--primary)';
+        btnMic.style.color = 'white';
+        btnMic.parentElement.classList.remove('mic-listening');
+        input.placeholder = "Tap the big microphone to speak...";
     };
 
     btnMic.addEventListener('click', () => {
         if (!recognition) return;
-
+        
         if (isListening) {
             recognition.stop();
         } else {
@@ -165,13 +213,21 @@ export const renderChat = async (rootElement) => {
         }
     });
 
+    // Handle suggestion chips
+    document.querySelectorAll('.chip-btn').forEach(chip => {
+        chip.addEventListener('click', () => {
+            input.value = chip.getAttribute('data-text');
+            form.dispatchEvent(new Event('submit'));
+        });
+    });
+
 
     // Form Submission Logic
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
+        
         const message = input.value.trim();
-        if (!message) return;
+        if(!message) return;
 
         // Stop TTS if user sends a new message while bot is speaking
         window.speechSynthesis.cancel();
@@ -184,13 +240,13 @@ export const renderChat = async (rootElement) => {
                 </div>
             </div>
         `;
-
+        
         input.value = '';
         input.disabled = true;
         btnMic.disabled = true;
         btnSend.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i>';
         lucide.createIcons();
-
+        
         // Scroll to bottom
         history.scrollTop = history.scrollHeight;
 
@@ -199,12 +255,33 @@ export const renderChat = async (rootElement) => {
             const response = await api.sendMessage({
                 message: message
             }, currentSessionId);
-
+            
             if (response.session && response.session.id) {
                 currentSessionId = response.session.id;
             }
 
-            const botText = response.content;
+            let botText = response.content;
+            
+            // Check for JSON payload for SEARCH action
+            const jsonRegex = /```json\n([\s\S]*?)\n```/;
+            const match = botText.match(jsonRegex);
+            let shouldRedirectToPlanner = false;
+            
+            if (match && match[1]) {
+                try {
+                    const payload = JSON.parse(match[1]);
+                    if (payload.action === "SEARCH") {
+                        // Store the payload in sessionStorage for planner.js to pick up
+                        sessionStorage.setItem('ai_search_payload', JSON.stringify(payload));
+                        shouldRedirectToPlanner = true;
+                    }
+                } catch(e) {
+                    console.error("Failed to parse JSON payload from AI", e);
+                }
+                
+                // Remove the JSON block from the text shown to user
+                botText = botText.replace(jsonRegex, '').trim();
+            }
 
             // Add bot response to UI
             history.innerHTML += `
@@ -214,11 +291,18 @@ export const renderChat = async (rootElement) => {
                     </div>
                 </div>
             `;
-
+            
             // Trigger TTS
             speakText(botText);
+            
+            // Redirect if we have a search action
+            if (shouldRedirectToPlanner) {
+                setTimeout(() => {
+                    window.location.hash = '#planner';
+                }, 1500); // Wait a short moment before redirecting
+            }
 
-        } catch (error) {
+        } catch(error) {
             history.innerHTML += `
                 <div style="align-self: flex-start; max-width: 80%;">
                     <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem 1.5rem; border-radius: 20px 20px 20px 0;">
@@ -235,7 +319,7 @@ export const renderChat = async (rootElement) => {
             history.scrollTop = history.scrollHeight;
         }
     });
-
+    
     // Attempt to pre-load voices to avoid delay on first TTS call
     if ('speechSynthesis' in window) {
         window.speechSynthesis.getVoices();

@@ -140,8 +140,8 @@ export const renderLogin = (rootElement) => {
             localStorage.setItem('yatra_user_id', response.user.id);
             localStorage.setItem('yatra_user_name', response.user.fullName);
 
-            // Redirect to home dashboard
-            window.location.hash = '#home';
+            // Redirect to chat (AI Assistant)
+            window.location.hash = '#chat';
             // Force reload to apply auth header
             window.location.reload();
 

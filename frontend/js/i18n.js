@@ -47,7 +47,13 @@ export const i18n = {
         "avail_hotels": "आस-पास के होटल",
         "btn_confirm_booking": "बुकिंग की पुष्टि करें और इटनरेरी बनाएँ",
         
-        "loading": "लोड हो रहा है..."
+        "loading": "लोड हो रहा है...",
+        
+        "chip_plan_trip": "यात्रा की योजना बनाएं",
+        "chip_wheelchair": "व्हीलचेयर की आवश्यकता है",
+        "chip_veg_food": "शाकाहारी भोजन खोजें",
+        "chip_hotel_dist": "स्टेशन से होटल की दूरी?",
+        "chip_morning_trains": "सुबह की ट्रेनें"
     },
     en: {
         "nav_home": "Home",
@@ -97,7 +103,13 @@ export const i18n = {
         "avail_hotels": "Available Hotels",
         "btn_confirm_booking": "Confirm Booking & Generate Itinerary",
         
-        "loading": "Loading..."
+        "loading": "Loading...",
+        
+        "chip_plan_trip": "Plan a trip",
+        "chip_wheelchair": "Need a wheelchair",
+        "chip_veg_food": "Find Veg Food",
+        "chip_hotel_dist": "Hotel distance?",
+        "chip_morning_trains": "Morning Trains"
     }
 };
 
