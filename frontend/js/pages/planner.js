@@ -366,6 +366,11 @@ export const renderPlanner = async (rootElement) => {
                     if (payload.wheelchairRequired) {
                         document.getElementById('specialReqs').value = 'Wheelchair Required';
                     }
+                    // Prefill Time Preference
+                    if (payload.timePreference === 'morning') {
+                        const morningChip = document.querySelector('.time-chip[data-from="05:00"]');
+                        if (morningChip) morningChip.click();
+                    }
                     
                     // Clear the payload so it doesn't loop
                     sessionStorage.removeItem('ai_search_payload');

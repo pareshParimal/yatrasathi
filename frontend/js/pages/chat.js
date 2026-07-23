@@ -312,13 +312,38 @@ export const renderChat = async (rootElement) => {
             }
 
         } catch(error) {
-            history.innerHTML += `
-                <div style="align-self: flex-start; max-width: 80%;">
-                    <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem 1.5rem; border-radius: 20px 20px 20px 0;">
-                        Sorry, I encountered an error connecting to the backend. (${error.message})
+            // Fallback NLP if AI is rate limited or unavailable
+            let fallbackPayload = null;
+            const msgLower = message.toLowerCase();
+            
+            if (msgLower.includes('trip') || msgLower.includes('plan') || msgLower.includes('wheelchair') || msgLower.includes('veg') || msgLower.includes('morning')) {
+                fallbackPayload = { action: "SEARCH" };
+                if (msgLower.includes('wheelchair')) fallbackPayload.wheelchairRequired = true;
+                if (msgLower.includes('veg')) fallbackPayload.foodPreference = 'VEG';
+                if (msgLower.includes('morning')) fallbackPayload.timePreference = 'morning';
+            }
+
+            if (fallbackPayload) {
+                history.innerHTML += `
+                    <div style="align-self: flex-start; max-width: 80%;">
+                        <div style="background-color: #f1f5f9; padding: 1rem 1.5rem; border-radius: 20px 20px 20px 0; color: var(--text-main);">
+                            The AI is currently busy, but I understood what you need! Setting up your preferences now...
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+                sessionStorage.setItem('ai_search_payload', JSON.stringify(fallbackPayload));
+                setTimeout(() => {
+                    window.location.hash = '#planner';
+                }, 2000);
+            } else {
+                history.innerHTML += `
+                    <div style="align-self: flex-start; max-width: 80%;">
+                        <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem 1.5rem; border-radius: 20px 20px 20px 0;">
+                            Sorry, the AI service is currently unavailable. (${error.message})
+                        </div>
+                    </div>
+                `;
+            }
         } finally {
             input.disabled = false;
             btnMic.disabled = false;
