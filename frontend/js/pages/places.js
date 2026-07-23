@@ -78,9 +78,10 @@ export const renderPlaces = async (rootElement) => {
             const selectedPlaceName = document.getElementById('place-selector').options[document.getElementById('place-selector').selectedIndex].text.split(',')[0];
             
             // Populate content
+            let dataNode = {};
             if (contentList && contentList.length > 0) {
                 const content = contentList[0];
-                const dataNode = content.content || {};
+                dataNode = content.content || {};
                 
                 document.getElementById('place-title').innerText = content.title || 'Historical Overview';
                 document.getElementById('place-history').innerText = dataNode.historical || dataNode.historicalText || 'No history available.';
@@ -156,7 +157,108 @@ export const renderPlaces = async (rootElement) => {
             
             const videoContainer = document.querySelector('.card[style*="height: 400px"]');
             if (videoContainer) {
-                videoContainer.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}?autoplay=1&mute=1&rel=0&showinfo=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: var(--radius-md);"></iframe>`;
+                if (selectedPlaceName === "Mahabalipuram") {
+                    // Cinematic Narrator Experiment
+                    videoContainer.style.padding = '0'; // Remove card padding
+                    videoContainer.innerHTML = `
+                        <div class="cinematic-container" id="cinematic-container">
+                            <!-- Slides -->
+                            <div class="cinematic-slide active" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/4e/Shore_Temple_Mahabalipuram.jpg');"></div>
+                            <div class="cinematic-slide" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/77/Five_Rathas_Mahabalipuram.jpg');"></div>
+                            <div class="cinematic-slide" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6f/Krishna_Mandapam_Mahabalipuram.jpg');"></div>
+                            
+                            <!-- Overlay -->
+                            <div class="cinematic-overlay">
+                                <div class="cinematic-caption" id="cinematic-caption"></div>
+                            </div>
+                            
+                            <!-- Controls -->
+                            <div class="cinematic-controls">
+                                <button class="cinematic-btn" id="btn-cinematic-play" title="Play Narration">
+                                    <i data-lucide="play" style="width:20px;height:20px;color:white;fill:white;"></i>
+                                </button>
+                                <button class="cinematic-btn" id="btn-cinematic-stop" title="Stop">
+                                    <i data-lucide="square" style="width:16px;height:16px;color:white;fill:white;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    
+                    const history = dataNode.historical || dataNode.historicalText || '';
+                    const culture = dataNode.cultural || dataNode.culturalText || '';
+                    const fullText = (history + " " + culture).replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|").filter(s => s.trim().length > 0);
+                    
+                    let currentSentence = 0;
+                    let currentSlide = 0;
+                    let isPlaying = false;
+                    
+                    const slides = videoContainer.querySelectorAll('.cinematic-slide');
+                    const caption = document.getElementById('cinematic-caption');
+                    const playBtn = document.getElementById('btn-cinematic-play');
+                    const stopBtn = document.getElementById('btn-cinematic-stop');
+                    
+                    const speakNext = () => {
+                        if (!isPlaying || currentSentence >= fullText.length) {
+                            isPlaying = false;
+                            caption.classList.remove('show');
+                            return;
+                        }
+                        
+                        const text = fullText[currentSentence];
+                        caption.innerText = text;
+                        caption.classList.add('show');
+                        
+                        // Rotate slide every 2 sentences
+                        if (currentSentence % 2 === 0 && currentSentence !== 0) {
+                            slides.forEach(s => s.classList.remove('active'));
+                            currentSlide = (currentSlide + 1) % slides.length;
+                            slides[currentSlide].classList.add('active');
+                        }
+                        
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.rate = 0.9;
+                        
+                        utterance.onend = () => {
+                            currentSentence++;
+                            caption.classList.remove('show');
+                            setTimeout(speakNext, 400); // slight pause between sentences
+                        };
+                        
+                        utterance.onerror = (e) => {
+                            console.error("Speech error", e);
+                            isPlaying = false;
+                        };
+                        
+                        window.speechSynthesis.speak(utterance);
+                    };
+                    
+                    playBtn.addEventListener('click', () => {
+                        window.speechSynthesis.cancel();
+                        if (isPlaying) {
+                            isPlaying = false;
+                            playBtn.innerHTML = '<i data-lucide="play" style="width:20px;height:20px;color:white;fill:white;"></i>';
+                        } else {
+                            isPlaying = true;
+                            playBtn.innerHTML = '<i data-lucide="pause" style="width:20px;height:20px;color:white;fill:white;"></i>';
+                            if (currentSentence >= fullText.length) currentSentence = 0; // Restart if at end
+                            speakNext();
+                        }
+                        lucide.createIcons();
+                    });
+                    
+                    stopBtn.addEventListener('click', () => {
+                        window.speechSynthesis.cancel();
+                        isPlaying = false;
+                        currentSentence = 0;
+                        caption.classList.remove('show');
+                        playBtn.innerHTML = '<i data-lucide="play" style="width:20px;height:20px;color:white;fill:white;"></i>';
+                        lucide.createIcons();
+                    });
+                    
+                } else {
+                    videoContainer.innerHTML = `<iframe width="100%" height="100%" src="${videoUrl}?autoplay=1&mute=1&rel=0&showinfo=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: var(--radius-md);"></iframe>`;
+                }
             }
 
         } catch (error) {

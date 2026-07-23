@@ -305,6 +305,8 @@ export const renderChat = async (rootElement) => {
                         if (msgLower.includes('morning') && !payload.timePreference) payload.timePreference = 'morning';
                         if (msgLower.includes('wheelchair') && payload.wheelchairRequired === undefined) payload.wheelchairRequired = true;
                         if (msgLower.includes('veg') && !payload.foodPreference) payload.foodPreference = 'VEG';
+                        if ((msgLower.includes('1 km') || msgLower.includes('1km')) && !payload.hotelMaxDistanceKm) payload.hotelMaxDistanceKm = 1;
+                        if ((msgLower.includes('500m') || msgLower.includes('500 m')) && !payload.hotelMaxDistanceKm) payload.hotelMaxDistanceKm = 0.5;
 
                         // Store the payload in sessionStorage for planner.js to pick up
                         sessionStorage.setItem('ai_search_payload', JSON.stringify(payload));
@@ -342,11 +344,13 @@ export const renderChat = async (rootElement) => {
             let fallbackPayload = null;
             const msgLower = message.toLowerCase();
             
-            if (msgLower.includes('trip') || msgLower.includes('plan') || msgLower.includes('wheelchair') || msgLower.includes('veg') || msgLower.includes('morning')) {
+            if (msgLower.includes('trip') || msgLower.includes('plan') || msgLower.includes('wheelchair') || msgLower.includes('veg') || msgLower.includes('morning') || msgLower.includes('1 km') || msgLower.includes('1km') || msgLower.includes('500m') || msgLower.includes('500 m')) {
                 fallbackPayload = { action: "SEARCH" };
                 if (msgLower.includes('wheelchair')) fallbackPayload.wheelchairRequired = true;
                 if (msgLower.includes('veg')) fallbackPayload.foodPreference = 'VEG';
                 if (msgLower.includes('morning')) fallbackPayload.timePreference = 'morning';
+                if (msgLower.includes('1 km') || msgLower.includes('1km')) fallbackPayload.hotelMaxDistanceKm = 1;
+                if (msgLower.includes('500m') || msgLower.includes('500 m')) fallbackPayload.hotelMaxDistanceKm = 0.5;
             }
 
             if (fallbackPayload) {

@@ -780,6 +780,12 @@ export const renderPlanner = async (rootElement) => {
                     const morningChip = document.querySelector('.time-chip[data-from="05:00"]');
                     if (morningChip) morningChip.click();
                 }
+                if (payload.hotelMaxDistanceKm) {
+                    const distanceSelect = document.getElementById('hotelRadius');
+                    if (distanceSelect) {
+                        distanceSelect.value = String(payload.hotelMaxDistanceKm);
+                    }
+                }
                 
                 sessionStorage.removeItem('ai_search_payload');
                 

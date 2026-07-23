@@ -1,10 +1,10 @@
-import { renderHome } from './pages/home.js';
-import { renderPlanner } from './pages/planner.js';
-import { renderPlaces } from './pages/places.js';
-import { renderChat } from './pages/chat.js';
-import { renderLogin } from './pages/login.js';
-import { api } from './api.js';
-import { applyTranslations } from './i18n.js?v=3';
+import { renderHome } from './pages/home.js?v=7';
+import { renderPlanner } from './pages/planner.js?v=7';
+import { renderPlaces } from './pages/places.js?v=7';
+import { renderChat } from './pages/chat.js?v=7';
+import { renderLogin } from './pages/login.js?v=7';
+import { api } from './api.js?v=7';
+import { applyTranslations } from './i18n.js?v=7';
 
 class AppRouter {
     constructor() {
