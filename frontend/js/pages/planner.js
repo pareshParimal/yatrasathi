@@ -358,9 +358,8 @@ export const renderPlanner = async (rootElement) => {
                     // Prefill Food Preference
                     if (payload.foodPreference) {
                         const foodSelect = document.getElementById('foodPreference');
-                        if (payload.foodPreference === 'VEG') foodSelect.value = 'veg';
-                        else if (payload.foodPreference === 'NON_VEG') foodSelect.value = 'non-veg';
-                        else if (payload.foodPreference === 'NONE') foodSelect.value = 'none';
+                        if (payload.foodPreference === 'VEG') foodSelect.value = 'VEG';
+                        else if (payload.foodPreference === 'NON_VEG') foodSelect.value = 'NON_VEG';
                     }
                     // Prefill Wheelchair
                     if (payload.wheelchairRequired) {
@@ -377,7 +376,9 @@ export const renderPlanner = async (rootElement) => {
                     
                     // Auto-trigger search after a tiny delay to let UI settle
                     setTimeout(() => {
-                        document.getElementById('btn-search').click();
+                        if (document.getElementById('sourceLocation').value.trim() && document.getElementById('destination').value) {
+                            document.getElementById('btn-search').click();
+                        }
                     }, 500);
                 }
             } catch(e) {

@@ -271,6 +271,11 @@ export const renderChat = async (rootElement) => {
 
             let botText = response.content;
             
+            // Check if the backend returned an error string instead of failing the HTTP request
+            if (botText.includes('Sorry, the AI service') || botText.includes('Sorry, I had trouble')) {
+                throw new Error("AI Backend returned an error message");
+            }
+            
             // Check for JSON payload for SEARCH action
             const jsonRegex = /```json\n([\s\S]*?)\n```/;
             const match = botText.match(jsonRegex);
