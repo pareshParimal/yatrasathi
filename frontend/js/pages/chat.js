@@ -28,7 +28,7 @@ export const renderChat = async (rootElement) => {
 
                 <!-- Suggestion Chips -->
                 <div id="suggestion-chips" style="display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 0.5rem; align-self: flex-start; max-width: 100%;">
-                    <button class="chip-btn" data-text="Plan a trip from Lucknow to Ayodhya" data-i18n="chip_plan_trip">Plan a trip</button>
+                    <button class="chip-btn" data-text="I want to plan a new trip" data-i18n="chip_plan_trip">Plan a trip</button>
                     <button class="chip-btn" data-text="I need wheelchair assistance" data-i18n="chip_wheelchair">Need a wheelchair</button>
                     <button class="chip-btn" data-text="Find pure veg food options" data-i18n="chip_veg_food">Find Veg Food</button>
                     <button class="chip-btn" data-text="What is the hotel distance from station?" data-i18n="chip_hotel_dist">Hotel distance?</button>
@@ -216,8 +216,17 @@ export const renderChat = async (rootElement) => {
     // Handle suggestion chips
     document.querySelectorAll('.chip-btn').forEach(chip => {
         chip.addEventListener('click', () => {
-            input.value = chip.getAttribute('data-text');
-            form.dispatchEvent(new Event('submit'));
+            const currentVal = input.value.trim();
+            const newText = chip.getAttribute('data-text');
+            
+            if (currentVal) {
+                input.value = currentVal + ', ' + newText;
+            } else {
+                input.value = newText;
+            }
+            
+            // Focus the input to encourage the user to click send when ready
+            input.focus();
         });
     });
 
