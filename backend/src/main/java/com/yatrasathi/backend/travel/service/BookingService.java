@@ -2,6 +2,7 @@ package com.yatrasathi.backend.travel.service;
 
 import com.yatrasathi.backend.place.entity.Place;
 import com.yatrasathi.backend.place.repository.PlaceRepository;
+import com.yatrasathi.backend.travel.client.HotelSearchClient;
 import com.yatrasathi.backend.travel.client.MapsClient;
 import com.yatrasathi.backend.travel.client.TrainSearchClient;
 import com.yatrasathi.backend.travel.entity.TravelPlan;
@@ -20,6 +21,7 @@ public class BookingService {
 
     private final TravelPlanRepository travelPlanRepository;
     private final TrainSearchClient trainSearchClient;
+    private final HotelSearchClient hotelSearchClient;
     private final MapsClient mapsClient;
     private final PlaceRepository placeRepository;
 
@@ -65,55 +67,22 @@ public class BookingService {
 
         if (radiusKm == null || radiusKm <= 0) radiusKm = 5.0;
 
-        double lat, lng;
-        String nearDescription;
+        // Resolve destination city name and landmark
+        String destinationCity = "Destination";
+        String nearLandmark = landmarkName;
 
-        if (landmarkLat != null && landmarkLng != null) {
-            lat = landmarkLat;
-            lng = landmarkLng;
-            nearDescription = landmarkName != null ? landmarkName : "Selected Landmark";
-        } else if (destinationId != null) {
+        if (destinationId != null) {
             Optional<Place> placeOpt = placeRepository.findById(destinationId);
             if (placeOpt.isPresent()) {
-                lat = placeOpt.get().getLatitude();
-                lng = placeOpt.get().getLongitude();
-                nearDescription = placeOpt.get().getName();
-            } else {
-                return getEnhancedMockHotels("Destination", maxPricePerNight);
+                destinationCity = placeOpt.get().getName();
+                if (nearLandmark == null || nearLandmark.isBlank()) {
+                    nearLandmark = placeOpt.get().getName();
+                }
             }
-        } else {
-            return getEnhancedMockHotels("Destination", maxPricePerNight);
         }
 
-        List<Map<String, Object>> hotels = mapsClient.getNearbyHotels(lat, lng, radiusKm).block();
-
-        if (hotels == null || hotels.isEmpty()) {
-            return getEnhancedMockHotels(nearDescription, maxPricePerNight);
-        }
-
-        // Enrich results with price and distance fields
-        List<Map<String, Object>> enriched = new ArrayList<>();
-        Random rnd = new Random();
-        for (Map<String, Object> h : hotels) {
-            Map<String, Object> copy = new HashMap<>(h);
-            // Google Places doesn't return price, so we generate a realistic range
-            int basePrice = 2000 + rnd.nextInt(8000);
-            copy.put("price", basePrice);
-            copy.put("priceCategory", basePrice < 3000 ? "Budget" : basePrice < 6000 ? "Mid-range" : "Luxury");
-            copy.put("nearDescription", "~" + String.format("%.1f", (rnd.nextDouble() * radiusKm)) + " km from " + nearDescription);
-            copy.put("amenities", List.of("Free WiFi", "AC", rnd.nextBoolean() ? "Lift" : "Ground Floor Available",
-                    rnd.nextBoolean() ? "Vegetarian Kitchen" : "Multi-cuisine"));
-            enriched.add(copy);
-        }
-
-        // Filter by max price if specified
-        if (maxPricePerNight != null && maxPricePerNight > 0) {
-            enriched = enriched.stream()
-                    .filter(h -> ((Number) h.get("price")).doubleValue() <= maxPricePerNight)
-                    .toList();
-        }
-
-        return enriched.isEmpty() ? getEnhancedMockHotels(nearDescription, maxPricePerNight) : enriched;
+        log.info("Searching hotels in {} near {} via Gemini", destinationCity, nearLandmark);
+        return hotelSearchClient.searchHotels(destinationCity, nearLandmark, maxPricePerNight, radiusKm).block();
     }
 
     private List<Map<String, Object>> getEnhancedMockHotels(String nearDescription, Double maxPrice) {

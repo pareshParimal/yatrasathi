@@ -449,7 +449,7 @@ export const renderPlanner = async (rootElement) => {
                                     <strong style="font-size:1.1rem;">${t.name}</strong>
                                     <span style="margin-left:8px; font-size:0.85rem; color:#6b7280;">#${t.number||t.id}</span>
                                 </div>
-                                <span style="background:${t.availability==='AVAILABLE'?'#dcfce7':t.availability==='RAC'?'#fef9c3':'#fee2e2'}; color:${t.availability==='AVAILABLE'?'#166534':t.availability==='RAC'?'#854d0e':'#991b1b'}; font-size:0.8rem; padding:3px 10px; border-radius:999px; font-weight:600;">${t.availability||'AVAILABLE'}</span>
+                                
                             </div>
                             <div style="display:flex; gap:2rem; margin-top:0.5rem; flex-wrap:wrap;">
                                 <span style="font-size:1.2rem; font-weight:bold; color:var(--primary);">${t.departure} → ${t.arrival}</span>
@@ -459,7 +459,7 @@ export const renderPlanner = async (rootElement) => {
                                 <div style="display:flex; gap:6px; flex-wrap:wrap;">
                                     ${(t.classes||['SL','3A']).map(c=>`<span style="background:#e0e7ff; color:#3730a3; font-size:0.78rem; padding:2px 8px; border-radius:4px; font-weight:600;">${c}</span>`).join('')}
                                 </div>
-                                <span style="color:var(--primary); font-weight:bold; font-size:1.1rem;">₹${t.price} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">/ person (SL)</span></span>
+                                
                             </div>
                         </div>
                     </label>
