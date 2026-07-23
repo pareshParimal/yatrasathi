@@ -4,7 +4,7 @@ import { renderPlaces } from './pages/places.js';
 import { renderChat } from './pages/chat.js';
 import { renderLogin } from './pages/login.js';
 import { api } from './api.js';
-import { applyTranslations } from './i18n.js';
+import { applyTranslations } from './i18n.js?v=3';
 
 class AppRouter {
     constructor() {
@@ -110,8 +110,11 @@ class AppRouter {
         lucide.createIcons();
         
         // Call render
-        renderFunc(this.root, param).then(() => {
+        Promise.resolve(renderFunc(this.root, param)).then(() => {
             lucide.createIcons();
+        }).catch(err => {
+            console.error("Render failed:", err);
+            this.root.innerHTML = `<div style="padding: 2rem; color: red;">Failed to load view.</div>`;
         });
 
         // Apply translations after rendering the new page

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://yatrasathi-production.up.railway.app/api/v1';
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 // We will read the user ID and language from localStorage
 const getUserId = () => localStorage.getItem('yatra_user_id') || '';

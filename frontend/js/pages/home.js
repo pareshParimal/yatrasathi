@@ -5,18 +5,18 @@ export const renderHome = async (rootElement) => {
     rootElement.innerHTML = `
         <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <h1 style="margin-bottom: 0.5rem;">Welcome to YatraSathi</h1>
-                <p style="margin: 0;">Your trusted companion for safe and comfortable travel across India.</p>
+                <h1 style="margin-bottom: 0.5rem;" data-i18n="home_welcome">Welcome to YatraSathi</h1>
+                <p style="margin: 0;" data-i18n="home_subtitle">Your trusted companion for safe and comfortable travel across India.</p>
             </div>
             <button id="btn-toggle-itineraries" class="btn-secondary" style="display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="calendar"></i> View My Itineraries
+                <i data-lucide="calendar"></i> <span data-i18n="home_view_itineraries">View My Itineraries</span>
             </button>
         </div>
 
         <!-- HIDDEN ITINERARIES DRAWER -->
         <div id="itineraries-container" style="display: none; background: #f9fafb; padding: 1.5rem; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0;"><i data-lucide="calendar" style="width: 20px; height: 20px; vertical-align: bottom;"></i> Your Trips</h3>
+                <h3 style="margin: 0;"><i data-lucide="calendar" style="width: 20px; height: 20px; vertical-align: bottom;"></i> <span data-i18n="home_your_trips">Your Trips</span></h3>
                 <button id="btn-close-itineraries" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #6b7280;">&times;</button>
             </div>
             <div id="itineraries-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
@@ -26,38 +26,38 @@ export const renderHome = async (rootElement) => {
             </div>
         </div>
 
-        <h2 style="margin-top: 3rem;">Quick Actions</h2>
+        <h2 style="margin-top: 3rem;" data-i18n="home_quick_actions">Quick Actions</h2>
         <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 1rem;">
             
             <div class="card feature-card" onclick="window.location.hash='planner'" style="cursor: pointer;">
                 <i data-lucide="map" style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 1rem;"></i>
-                <h2>Plan a New Trip</h2>
-                <p class="text-muted">Set your preferences and let us generate a comfortable, elderly-friendly itinerary for you.</p>
+                <h2 data-i18n="home_plan_trip">Plan a New Trip</h2>
+                <p class="text-muted" data-i18n="home_plan_trip_desc">Set your preferences and let us generate a comfortable, elderly-friendly itinerary for you.</p>
             </div>
 
             <div class="card feature-card" onclick="window.location.hash='places'" style="cursor: pointer;">
                 <i data-lucide="image" style="width: 48px; height: 48px; color: var(--secondary); margin-bottom: 1rem;"></i>
-                <h2>Discover Places</h2>
-                <p class="text-muted">Explore rich history and culture with storytelling content designed just for you.</p>
+                <h2 data-i18n="home_discover">Discover Places</h2>
+                <p class="text-muted" data-i18n="home_discover_desc">Explore rich history and culture with storytelling content designed just for you.</p>
             </div>
 
             <div class="card feature-card" onclick="window.location.hash='chat'" style="cursor: pointer;">
                 <i data-lucide="bot" style="width: 48px; height: 48px; color: var(--accent); margin-bottom: 1rem;"></i>
-                <h2>Talk to Assistant</h2>
-                <p class="text-muted">Have a question? Our intelligent AI is here to answer any queries about your travel.</p>
+                <h2 data-i18n="home_talk_assistant">Talk to Assistant</h2>
+                <p class="text-muted" data-i18n="home_talk_assistant_desc">Have a question? Our intelligent AI is here to answer any queries about your travel.</p>
             </div>
             
             <div class="card feature-card">
                 <i data-lucide="coffee" style="width: 48px; height: 48px; color: var(--primary-dark); margin-bottom: 1rem;"></i>
-                <h2>Train Food</h2>
-                <p class="text-muted">Find reliable platforms to order hot, hygienic food directly to your train seat.</p>
-                <button class="btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.5rem;" onclick="alert('Food directory coming soon!')">View Options</button>
+                <h2 data-i18n="home_train_food">Train Food</h2>
+                <p class="text-muted" data-i18n="home_train_food_desc">Find reliable platforms to order hot, hygienic food directly to your train seat.</p>
+                <button class="btn-primary" style="margin-top: 1rem; width: 100%; padding: 0.5rem;" onclick="alert('Food directory coming soon!')" data-i18n="home_view_options">View Options</button>
             </div>
 
             <div class="card feature-card" id="btn-open-contacts" style="cursor: pointer;">
                 <i data-lucide="shield" style="width: 48px; height: 48px; color: #dc2626; margin-bottom: 1rem;"></i>
-                <h2>Emergency Contacts</h2>
-                <p class="text-muted">Add family members who will receive your live location updates via Telegram during trips.</p>
+                <h2 data-i18n="home_emergency_contacts">Emergency Contacts</h2>
+                <p class="text-muted" data-i18n="home_emergency_contacts_desc">Add family members who will receive your live location updates via Telegram during trips.</p>
             </div>
 
         </div>

@@ -121,11 +121,26 @@ export const renderChat = async (rootElement) => {
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
         
-        // Try to find an English (India) voice if available
+        // Detect if text contains Hindi characters
+        const isHindi = /[\u0900-\u097F]/.test(text);
+        
+        // Try to find the best voice available
         const voices = window.speechSynthesis.getVoices();
-        const indianVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
-        if (indianVoice) {
-            utterance.voice = indianVoice;
+        let selectedVoice = null;
+        
+        if (isHindi) {
+            // Prefer Google Hindi for better quality, fallback to any Hindi
+            selectedVoice = voices.find(v => v.lang.includes('hi-IN') && v.name.includes('Google')) || 
+                            voices.find(v => v.lang.includes('hi-IN'));
+        } else {
+            // Prefer Google Indian English, fallback to any Indian English, then any Google English
+            selectedVoice = voices.find(v => v.lang.includes('en-IN') && v.name.includes('Google')) || 
+                            voices.find(v => v.lang.includes('en-IN')) ||
+                            voices.find(v => v.lang.includes('en-') && v.name.includes('Google'));
+        }
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
         }
 
         window.speechSynthesis.speak(utterance);
