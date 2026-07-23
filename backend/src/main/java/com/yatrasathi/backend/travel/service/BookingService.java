@@ -1,5 +1,9 @@
 package com.yatrasathi.backend.travel.service;
 
+import com.yatrasathi.backend.place.entity.Place;
+import com.yatrasathi.backend.place.repository.PlaceRepository;
+import com.yatrasathi.backend.travel.client.MapsClient;
+import com.yatrasathi.backend.travel.client.TrainSearchClient;
 import com.yatrasathi.backend.travel.entity.TravelPlan;
 import com.yatrasathi.backend.travel.repository.TravelPlanRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -18,22 +19,134 @@ import java.util.Random;
 public class BookingService {
 
     private final TravelPlanRepository travelPlanRepository;
+    private final TrainSearchClient trainSearchClient;
+    private final MapsClient mapsClient;
+    private final PlaceRepository placeRepository;
 
+    /**
+     * Search for real trains between two cities with user-defined filters.
+     */
+    public List<Map<String, Object>> searchTrains(
+            String fromCity,
+            String toCity,
+            String travelDate,
+            String departureFrom,
+            String departureTo,
+            int maxDurationHours) {
+
+        if (fromCity == null || fromCity.isBlank()) fromCity = "Delhi";
+        if (toCity == null || toCity.isBlank()) toCity = "Agra";
+        if (departureFrom == null || departureFrom.isBlank()) departureFrom = "00:00";
+        if (departureTo == null || departureTo.isBlank()) departureTo = "23:59";
+        if (maxDurationHours <= 0) maxDurationHours = 24;
+
+        final String finalFrom = fromCity;
+        final String finalTo = toCity;
+        final String finalDate = travelDate != null ? travelDate : "2025-08-15";
+        final String finalDepFrom = departureFrom;
+        final String finalDepTo = departureTo;
+        final int finalMaxDur = maxDurationHours;
+
+        return trainSearchClient.searchTrains(finalFrom, finalTo, finalDate, finalDepFrom, finalDepTo, finalMaxDur)
+                .block();
+    }
+
+    /**
+     * Search for hotels near a destination. If a specific landmark lat/lng is provided, use that.
+     * Otherwise fall back to destination center coordinates.
+     */
+    public List<Map<String, Object>> searchHotels(
+            UUID destinationId,
+            Double landmarkLat,
+            Double landmarkLng,
+            String landmarkName,
+            Double maxPricePerNight,
+            Double radiusKm) {
+
+        if (radiusKm == null || radiusKm <= 0) radiusKm = 5.0;
+
+        double lat, lng;
+        String nearDescription;
+
+        if (landmarkLat != null && landmarkLng != null) {
+            lat = landmarkLat;
+            lng = landmarkLng;
+            nearDescription = landmarkName != null ? landmarkName : "Selected Landmark";
+        } else if (destinationId != null) {
+            Optional<Place> placeOpt = placeRepository.findById(destinationId);
+            if (placeOpt.isPresent()) {
+                lat = placeOpt.get().getLatitude();
+                lng = placeOpt.get().getLongitude();
+                nearDescription = placeOpt.get().getName();
+            } else {
+                return getEnhancedMockHotels("Destination", maxPricePerNight);
+            }
+        } else {
+            return getEnhancedMockHotels("Destination", maxPricePerNight);
+        }
+
+        List<Map<String, Object>> hotels = mapsClient.getNearbyHotels(lat, lng, radiusKm).block();
+
+        if (hotels == null || hotels.isEmpty()) {
+            return getEnhancedMockHotels(nearDescription, maxPricePerNight);
+        }
+
+        // Enrich results with price and distance fields
+        List<Map<String, Object>> enriched = new ArrayList<>();
+        Random rnd = new Random();
+        for (Map<String, Object> h : hotels) {
+            Map<String, Object> copy = new HashMap<>(h);
+            // Google Places doesn't return price, so we generate a realistic range
+            int basePrice = 2000 + rnd.nextInt(8000);
+            copy.put("price", basePrice);
+            copy.put("priceCategory", basePrice < 3000 ? "Budget" : basePrice < 6000 ? "Mid-range" : "Luxury");
+            copy.put("nearDescription", "~" + String.format("%.1f", (rnd.nextDouble() * radiusKm)) + " km from " + nearDescription);
+            copy.put("amenities", List.of("Free WiFi", "AC", rnd.nextBoolean() ? "Lift" : "Ground Floor Available",
+                    rnd.nextBoolean() ? "Vegetarian Kitchen" : "Multi-cuisine"));
+            enriched.add(copy);
+        }
+
+        // Filter by max price if specified
+        if (maxPricePerNight != null && maxPricePerNight > 0) {
+            enriched = enriched.stream()
+                    .filter(h -> ((Number) h.get("price")).doubleValue() <= maxPricePerNight)
+                    .toList();
+        }
+
+        return enriched.isEmpty() ? getEnhancedMockHotels(nearDescription, maxPricePerNight) : enriched;
+    }
+
+    private List<Map<String, Object>> getEnhancedMockHotels(String nearDescription, Double maxPrice) {
+        List<Map<String, Object>> all = new ArrayList<>();
+        all.add(Map.of("name", "Taj Hotel & Convention Centre", "rating", 4.8, "price", 9500,
+                "priceCategory", "Luxury", "vicinity", "City Center",
+                "nearDescription", "0.8 km from " + nearDescription,
+                "amenities", List.of("Free WiFi", "AC", "Lift", "Vegetarian Kitchen", "Medical Assistance")));
+        all.add(Map.of("name", "Lemon Tree Premier", "rating", 4.2, "price", 4800,
+                "priceCategory", "Mid-range", "vicinity", "Near Station",
+                "nearDescription", "1.5 km from " + nearDescription,
+                "amenities", List.of("Free WiFi", "AC", "Lift", "Multi-cuisine", "Wheelchair Accessible")));
+        all.add(Map.of("name", "OYO Heritage Inn", "rating", 4.0, "price", 2200,
+                "priceCategory", "Budget", "vicinity", "Market Area",
+                "nearDescription", "2.1 km from " + nearDescription,
+                "amenities", List.of("Free WiFi", "AC", "Ground Floor Available", "Vegetarian Kitchen")));
+        all.add(Map.of("name", "Comfort Residency", "rating", 3.8, "price", 1800,
+                "priceCategory", "Budget", "vicinity", "Bus Stand Area",
+                "nearDescription", "3.0 km from " + nearDescription,
+                "amenities", List.of("Free WiFi", "Fan Rooms", "Ground Floor Available", "Jain Food Available")));
+
+        if (maxPrice != null && maxPrice > 0) {
+            return all.stream().filter(h -> ((Number) h.get("price")).doubleValue() <= maxPrice).toList();
+        }
+        return all;
+    }
+
+    /**
+     * Legacy method kept for backward compatibility.
+     */
     public Map<String, Object> getMockBookingOptions(UUID destinationId, Double budgetMax) {
-        // Mock Trains
-        List<Map<String, Object>> trains = List.of(
-            Map.of("id", "T1", "name", "Vande Bharat Express", "type", "Train", "price", 1500, "departure", "06:00 AM", "arrival", "02:00 PM", "duration", "8h"),
-            Map.of("id", "T2", "name", "Shatabdi Express", "type", "Train", "price", 1200, "departure", "04:30 PM", "arrival", "11:30 PM", "duration", "7h"),
-            Map.of("id", "T3", "name", "Rajdhani Express", "type", "Train", "price", 2200, "departure", "08:00 PM", "arrival", "08:00 AM", "duration", "12h")
-        );
-
-        // Mock Hotels
-        List<Map<String, Object>> hotels = List.of(
-            Map.of("id", "H1", "name", "Taj Palace", "type", "Hotel", "price", 8000, "rating", 4.8, "distance", "2.5 km from station"),
-            Map.of("id", "H2", "name", "Lemon Tree Premier", "type", "Hotel", "price", 4500, "rating", 4.2, "distance", "1.2 km from station"),
-            Map.of("id", "H3", "name", "Comfort Inn", "type", "Hotel", "price", 2000, "rating", 3.8, "distance", "0.5 km from station")
-        );
-
+        List<Map<String, Object>> trains = searchTrains("Delhi", "Destination", null, "00:00", "23:59", 24);
+        List<Map<String, Object>> hotels = searchHotels(destinationId, null, null, null, budgetMax, 5.0);
         return Map.of("trains", trains, "hotels", hotels);
     }
 
@@ -45,7 +158,7 @@ public class BookingService {
         plan.setBookedTrainName(trainName);
         plan.setBookedHotelName(hotelName);
         plan.setBookingStatus("CONFIRMED");
-        
+
         // Generate a 10 digit mock PNR
         Random rnd = new Random();
         long pnrNumber = 1000000000L + (long)(rnd.nextDouble() * 8999999999L);

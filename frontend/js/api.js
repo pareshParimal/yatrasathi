@@ -36,6 +36,26 @@ export const api = {
     generateItinerary: (id) => fetchAPI(`/travel-plans/${id}/itinerary/generate`, { method: 'POST' }),
     // Bookings
     getBookingOptions: (destinationId, budgetMax) => fetchAPI(`/bookings/options?destinationId=${destinationId}${budgetMax ? '&budgetMax=' + budgetMax : ''}`),
+    searchTrains: ({ fromCity, toCity, travelDate, departureFrom, departureTo, maxDurationHours }) => {
+        const params = new URLSearchParams();
+        if (fromCity) params.set('fromCity', fromCity);
+        if (toCity) params.set('toCity', toCity);
+        if (travelDate) params.set('travelDate', travelDate);
+        if (departureFrom) params.set('departureFrom', departureFrom);
+        if (departureTo) params.set('departureTo', departureTo);
+        if (maxDurationHours) params.set('maxDurationHours', maxDurationHours);
+        return fetchAPI(`/bookings/trains?${params.toString()}`);
+    },
+    searchHotels: ({ destinationId, landmarkLat, landmarkLng, landmarkName, maxPricePerNight, radiusKm }) => {
+        const params = new URLSearchParams();
+        if (destinationId) params.set('destinationId', destinationId);
+        if (landmarkLat) params.set('landmarkLat', landmarkLat);
+        if (landmarkLng) params.set('landmarkLng', landmarkLng);
+        if (landmarkName) params.set('landmarkName', landmarkName);
+        if (maxPricePerNight) params.set('maxPricePerNight', maxPricePerNight);
+        if (radiusKm) params.set('radiusKm', radiusKm);
+        return fetchAPI(`/bookings/hotels?${params.toString()}`);
+    },
     confirmBooking: (planId, trainName, hotelName) => fetchAPI(`/bookings/confirm/${planId}`, { method: 'POST', body: JSON.stringify({ trainName, hotelName }) }),
 
     // Chat
