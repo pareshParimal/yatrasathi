@@ -46,6 +46,17 @@ class AppRouter {
 
         // Auth Guard
         const userId = localStorage.getItem('yatra_user_id');
+
+        const logoutBtn = document.getElementById('nav-logout');
+        const emergencyBtn = document.getElementById('btn-emergency');
+
+        if (userId) {
+            logoutBtn.style.display = 'block';
+            emergencyBtn.style.display = 'block';
+        } else {
+            logoutBtn.style.display = 'none';
+            emergencyBtn.style.display = 'none';
+        }
         if (!userId && view !== 'login') {
             window.location.hash = '#login';
             return;
