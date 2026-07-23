@@ -78,16 +78,37 @@ public class PlaceService {
                 log.warn("Gemini API failed for {}, falling back to Wikipedia", place.getName());
                 // Fallback to Wikipedia API
                 try {
-                    String wikiUrl = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + place.getName().replace(" ", "%20");
-                    org.springframework.web.reactive.function.client.WebClient wikiClient = org.springframework.web.reactive.function.client.WebClient.create();
-                    String wikiResponse = wikiClient.get().uri(wikiUrl).retrieve().bodyToMono(String.class).block();
+                    org.springframework.web.reactive.function.client.WebClient wikiClient = org.springframework.web.reactive.function.client.WebClient.builder()
+                            .defaultHeader(org.springframework.http.HttpHeaders.USER_AGENT, "YatraSathi/1.0 (contact@yatrasathi.com)")
+                            .build();
+                    String wikiResponse = wikiClient.get()
+                            .uri(uriBuilder -> uriBuilder
+                                .scheme("https")
+                                .host("en.wikipedia.org")
+                                .path("/w/api.php")
+                                .queryParam("format", "json")
+                                .queryParam("action", "query")
+                                .queryParam("generator", "search")
+                                .queryParam("gsrlimit", "1")
+                                .queryParam("prop", "extracts")
+                                .queryParam("exintro", "1")
+                                .queryParam("explaintext", "1")
+                                .queryParam("gsrsearch", place.getName())
+                                .build())
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
                     
                     com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(wikiResponse);
                     com.fasterxml.jackson.databind.JsonNode pages = root.path("query").path("pages");
                     
-                    String extract = "Historical information could not be retrieved at this time.";
+                    String extract = "";
                     if (pages.isObject() && pages.fields().hasNext()) {
                         extract = pages.fields().next().getValue().path("extract").asText();
+                    }
+                    
+                    if (extract.isEmpty()) {
+                        extract = "Historical and cultural information could not be retrieved from Wikipedia at this time. Please try again later or consult a local guide.";
                     }
                     
                     // Split the extract roughly into history and culture if it's long enough

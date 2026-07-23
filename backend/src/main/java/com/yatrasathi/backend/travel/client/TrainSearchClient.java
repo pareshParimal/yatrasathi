@@ -39,7 +39,7 @@ public class TrainSearchClient {
                 .map(response -> parseTrainsFromResponse(response, fromCity, toCity, departureFrom, departureTo, maxDurationHours))
                 .onErrorResume(e -> {
                     log.error("Error fetching trains via Gemini: {}", e.getMessage());
-                    return Mono.just(getFallbackTrains(fromCity, toCity));
+                    return Mono.just(getFallbackTrains(fromCity, toCity, departureFrom, departureTo));
                 });
     }
 
@@ -90,11 +90,11 @@ public class TrainSearchClient {
                     .toList();
         } catch (Exception e) {
             log.warn("Could not parse Gemini train response, using fallback. Response was: {}", response);
-            return getFallbackTrains(fromCity, toCity);
+            return getFallbackTrains(fromCity, toCity, departureFrom, departureTo);
         }
     }
 
-    private List<Map<String, Object>> getFallbackTrains(String fromCity, String toCity) {
+    private List<Map<String, Object>> getFallbackTrains(String fromCity, String toCity, String departureFrom, String departureTo) {
         log.info("Returning fallback train data for {} -> {}", fromCity, toCity);
         List<Map<String, Object>> trains = new ArrayList<>();
 
@@ -122,6 +122,9 @@ public class TrainSearchClient {
         t3.put("days", List.of("Tue", "Thu", "Sat"));
         trains.add(t3);
 
-        return trains;
+        return trains.stream().filter(t -> {
+            String dep = (String) t.get("departure");
+            return dep != null && dep.compareTo(departureFrom) >= 0 && dep.compareTo(departureTo) <= 0;
+        }).toList();
     }
 }
