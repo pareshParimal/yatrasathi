@@ -423,7 +423,65 @@ export const renderPlanner = async (rootElement) => {
             const plan = await api.createTravelPlan(planPayload);
             currentPlanId = plan.id;
 
-            // 2. Fetch trains and hotels in parallel
+            // Transition to step 2 IMMEDIATELY with Skeleton Loaders
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+            window.scrollTo(0, 0);
+
+            // Shimmer CSS (injected if not present)
+            if (!document.getElementById('shimmer-css')) {
+                const style = document.createElement('style');
+                style.id = 'shimmer-css';
+                style.innerHTML = `
+                    @keyframes shimmer {
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
+                    }
+                    .skeleton {
+                        background: #f6f7f8;
+                        background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+                        background-repeat: no-repeat;
+                        background-size: 1000px 100%;
+                        animation-duration: 1.5s;
+                        animation-fill-mode: forwards;
+                        animation-iteration-count: infinite;
+                        animation-name: shimmer;
+                        animation-timing-function: linear;
+                        border-radius: 4px;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            const skeletonTrain = `
+                <div style="padding:1.2rem; border:2px solid #e5e7eb; border-radius:12px; margin-bottom:1rem; display:flex; gap:1rem;">
+                    <div class="skeleton" style="width:20px; height:20px; border-radius:50%; margin-top:4px;"></div>
+                    <div style="flex:1;">
+                        <div class="skeleton" style="width: 60%; height: 24px; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="width: 40%; height: 20px; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="width: 80%; height: 16px;"></div>
+                    </div>
+                </div>
+            `;
+            const skeletonHotel = `
+                <div style="padding:1.2rem; border:2px solid #e5e7eb; border-radius:12px; margin-bottom:1rem; display:flex; gap:1rem;">
+                    <div class="skeleton" style="width:20px; height:20px; border-radius:50%; margin-top:4px;"></div>
+                    <div style="flex:1;">
+                        <div class="skeleton" style="width: 50%; height: 24px; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="width: 70%; height: 16px; margin-bottom: 8px;"></div>
+                        <div class="skeleton" style="width: 30%; height: 20px;"></div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('train-route-label').innerHTML = `<span style="color:#f97316;">✨ AI is analyzing train schedules for ${fromCity} to ${toCity}...</span>`;
+            document.getElementById('hotel-location-label').innerHTML = `<span style="color:#f97316;">✨ AI is finding the best hotels near ${toCity}...</span>`;
+            
+            document.getElementById('train-options').innerHTML = skeletonTrain + skeletonTrain + skeletonTrain;
+            document.getElementById('hotel-options').innerHTML = skeletonHotel + skeletonHotel + skeletonHotel;
+            lucide.createIcons();
+
+            // 2. Fetch trains and hotels in parallel (takes 4-8 seconds via Gemini)
             const travelDate = document.getElementById('travelDate').value;
             const departureFrom = document.getElementById('departureFrom').value;
             const departureTo = document.getElementById('departureTo').value;
@@ -436,7 +494,7 @@ export const renderPlanner = async (rootElement) => {
                 api.searchHotels({ destinationId: destSelect.value, maxPricePerNight: maxHotelPrice > 0 ? maxHotelPrice : undefined, radiusKm: hotelRadius })
             ]);
 
-            // 3. Render trains
+            // 3. Render real trains
             document.getElementById('train-route-label').textContent = `${fromCity} → ${toCity} on ${travelDate}`;
             document.getElementById('train-options').innerHTML = trains.length === 0
                 ? '<p style="color:#9ca3af; padding:1rem;">No trains found matching your criteria. Try broadening the time window or duration.</p>'
@@ -488,10 +546,6 @@ export const renderPlanner = async (rootElement) => {
                     </label>
                 `).join('');
 
-            // 5. Transition to step 2
-            document.getElementById('step-1').style.display = 'none';
-            document.getElementById('step-2').style.display = 'block';
-            window.scrollTo(0, 0);
             lucide.createIcons();
 
         } catch (err) {

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.*;
 
@@ -28,6 +29,7 @@ public class BookingService {
     /**
      * Search for real trains between two cities with user-defined filters.
      */
+    @Cacheable(value = "trains", key = "{#fromCity, #toCity, #travelDate, #departureFrom, #departureTo, #maxDurationHours}")
     public List<Map<String, Object>> searchTrains(
             String fromCity,
             String toCity,
@@ -57,6 +59,7 @@ public class BookingService {
      * Search for hotels near a destination. If a specific landmark lat/lng is provided, use that.
      * Otherwise fall back to destination center coordinates.
      */
+    @Cacheable(value = "hotels", key = "{#destinationId, #landmarkLat, #landmarkLng, #landmarkName, #maxPricePerNight, #radiusKm}")
     public List<Map<String, Object>> searchHotels(
             UUID destinationId,
             Double landmarkLat,
