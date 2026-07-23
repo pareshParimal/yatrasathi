@@ -14,7 +14,12 @@ export const renderPlanner = async (rootElement) => {
             <form id="planner-form" style="margin-top: 1.5rem;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div class="form-group">
-                        <label for="destination">Destination</label>
+                        <label for="sourceLocation">From (City)</label>
+                        <input type="text" id="sourceLocation" class="form-control" placeholder="e.g., Delhi" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="destination">To (Destination)</label>
                         <select id="destination" class="form-control" required>
                             <option value="">Loading places...</option>
                         </select>
@@ -181,6 +186,7 @@ export const renderPlanner = async (rootElement) => {
         btn.disabled = true;
 
         const requestData = {
+            sourceLocation: document.getElementById('sourceLocation').value,
             destinationId: document.getElementById('destination').value,
             travelMedium: document.getElementById('travelMedium').value,
             budgetMin: parseFloat(document.getElementById('budgetMin').value),

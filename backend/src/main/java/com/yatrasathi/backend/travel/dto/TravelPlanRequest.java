@@ -8,6 +8,7 @@ import java.util.UUID;
 @Data
 public class TravelPlanRequest {
     private String title;
+    private String sourceLocation;
     private UUID destinationId;
     private String travelMedium;
     private LocalTime boardingTimePref;

@@ -36,7 +36,8 @@ public class TravelPlanService {
 
         TravelPlan plan = TravelPlan.builder()
                 .user(user)
-                .title(request.getTitle() != null ? request.getTitle() : "Trip to " + (place != null ? place.getName() : "Unknown"))
+                .title(request.getTitle() != null ? request.getTitle() : "Trip from " + (request.getSourceLocation() != null ? request.getSourceLocation() : "Unknown") + " to " + (place != null ? place.getName() : "Unknown"))
+                .sourceLocation(request.getSourceLocation())
                 .destination(place)
                 .travelMedium(request.getTravelMedium())
                 .boardingTimePref(request.getBoardingTimePref())

@@ -39,6 +39,9 @@ public class TravelPlan {
     @JoinColumn(name = "destination_id")
     private Place destination;
 
+    @Column(name = "source_location")
+    private String sourceLocation;
+
     @Column(name = "travel_medium", nullable = false)
     private String travelMedium; // TRAIN, BUS, FLIGHT, CAR
 
