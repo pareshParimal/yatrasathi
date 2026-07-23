@@ -65,15 +65,15 @@ export const renderChat = async (rootElement) => {
     // Initialize Web Speech API for TTS
     const speakText = (text) => {
         if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
-        
+
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
-        
+
         const utterance = new SpeechSynthesisUtterance(text);
         // Optimize for elderly: slightly slower rate, higher pitch for clarity
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
-        
+
         // Try to find an English (India) voice if available
         const voices = window.speechSynthesis.getVoices();
         const indianVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
@@ -124,7 +124,7 @@ export const renderChat = async (rootElement) => {
                     interimTranscript += event.results[i][0].transcript;
                 }
             }
-            
+
             input.value = finalTranscript || interimTranscript;
         };
 
@@ -156,7 +156,7 @@ export const renderChat = async (rootElement) => {
 
     btnMic.addEventListener('click', () => {
         if (!recognition) return;
-        
+
         if (isListening) {
             recognition.stop();
         } else {
@@ -169,9 +169,9 @@ export const renderChat = async (rootElement) => {
     // Form Submission Logic
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const message = input.value.trim();
-        if(!message) return;
+        if (!message) return;
 
         // Stop TTS if user sends a new message while bot is speaking
         window.speechSynthesis.cancel();
@@ -184,13 +184,13 @@ export const renderChat = async (rootElement) => {
                 </div>
             </div>
         `;
-        
+
         input.value = '';
         input.disabled = true;
         btnMic.disabled = true;
         btnSend.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i>';
         lucide.createIcons();
-        
+
         // Scroll to bottom
         history.scrollTop = history.scrollHeight;
 
@@ -199,33 +199,12 @@ export const renderChat = async (rootElement) => {
             const response = await api.sendMessage({
                 message: message
             }, currentSessionId);
-            
+
             if (response.session && response.session.id) {
                 currentSessionId = response.session.id;
             }
 
-            let botText = response.content;
-            
-            // Check for JSON payload for SEARCH action
-            const jsonRegex = /```json\n([\s\S]*?)\n```/;
-            const match = botText.match(jsonRegex);
-            let shouldRedirectToPlanner = false;
-            
-            if (match && match[1]) {
-                try {
-                    const payload = JSON.parse(match[1]);
-                    if (payload.action === "SEARCH") {
-                        // Store the payload in sessionStorage for planner.js to pick up
-                        sessionStorage.setItem('ai_search_payload', JSON.stringify(payload));
-                        shouldRedirectToPlanner = true;
-                    }
-                } catch(e) {
-                    console.error("Failed to parse JSON payload from AI", e);
-                }
-                
-                // Remove the JSON block from the text shown to user
-                botText = botText.replace(jsonRegex, '').trim();
-            }
+            const botText = response.content;
 
             // Add bot response to UI
             history.innerHTML += `
@@ -235,18 +214,11 @@ export const renderChat = async (rootElement) => {
                     </div>
                 </div>
             `;
-            
+
             // Trigger TTS
             speakText(botText);
-            
-            // Redirect if we have a search action
-            if (shouldRedirectToPlanner) {
-                setTimeout(() => {
-                    window.location.hash = '#planner';
-                }, 1500); // Wait a short moment before redirecting
-            }
 
-        } catch(error) {
+        } catch (error) {
             history.innerHTML += `
                 <div style="align-self: flex-start; max-width: 80%;">
                     <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem 1.5rem; border-radius: 20px 20px 20px 0;">
@@ -263,7 +235,7 @@ export const renderChat = async (rootElement) => {
             history.scrollTop = history.scrollHeight;
         }
     });
-    
+
     // Attempt to pre-load voices to avoid delay on first TTS call
     if ('speechSynthesis' in window) {
         window.speechSynthesis.getVoices();

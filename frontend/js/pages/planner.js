@@ -355,6 +355,17 @@ export const renderPlanner = async (rootElement) => {
                     if (payload.travelDate) {
                         document.getElementById('travelDate').value = payload.travelDate;
                     }
+                    // Prefill Food Preference
+                    if (payload.foodPreference) {
+                        const foodSelect = document.getElementById('foodPreference');
+                        if (payload.foodPreference === 'VEG') foodSelect.value = 'veg';
+                        else if (payload.foodPreference === 'NON_VEG') foodSelect.value = 'non-veg';
+                        else if (payload.foodPreference === 'NONE') foodSelect.value = 'none';
+                    }
+                    // Prefill Wheelchair
+                    if (payload.wheelchairRequired) {
+                        document.getElementById('specialReqs').value = 'Wheelchair Required';
+                    }
                     
                     // Clear the payload so it doesn't loop
                     sessionStorage.removeItem('ai_search_payload');
