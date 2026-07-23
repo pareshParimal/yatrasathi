@@ -331,61 +331,7 @@ export const renderPlanner = async (rootElement) => {
         destSelect.addEventListener('change', updateLandmarkDropdown);
         updateLandmarkDropdown();
 
-        // ─── AI Auto-fill Logic ───
-        const payloadStr = sessionStorage.getItem('ai_search_payload');
-        if (payloadStr) {
-            try {
-                const payload = JSON.parse(payloadStr);
-                if (payload.action === 'SEARCH') {
-                    // Prefill Source
-                    if (payload.fromCity) {
-                        document.getElementById('sourceLocation').value = payload.fromCity;
-                    }
-                    // Prefill Destination
-                    if (payload.toCity && placesData.length > 0) {
-                        // Find a place that matches the toCity string (case insensitive, partial match)
-                        const searchCity = payload.toCity.toLowerCase();
-                        const matchedPlace = placesData.find(p => p.name.toLowerCase().includes(searchCity) || searchCity.includes(p.name.toLowerCase()));
-                        if (matchedPlace) {
-                            destSelect.value = matchedPlace.id;
-                            updateLandmarkDropdown();
-                        }
-                    }
-                    // Prefill Date
-                    if (payload.travelDate) {
-                        document.getElementById('travelDate').value = payload.travelDate;
-                    }
-                    // Prefill Food Preference
-                    if (payload.foodPreference) {
-                        const foodSelect = document.getElementById('foodPreference');
-                        if (payload.foodPreference === 'VEG') foodSelect.value = 'VEG';
-                        else if (payload.foodPreference === 'NON_VEG') foodSelect.value = 'NON_VEG';
-                    }
-                    // Prefill Wheelchair
-                    if (payload.wheelchairRequired) {
-                        document.getElementById('specialReqs').value = 'Wheelchair Required';
-                    }
-                    // Prefill Time Preference
-                    if (payload.timePreference === 'morning') {
-                        const morningChip = document.querySelector('.time-chip[data-from="05:00"]');
-                        if (morningChip) morningChip.click();
-                    }
-                    
-                    // Clear the payload so it doesn't loop
-                    sessionStorage.removeItem('ai_search_payload');
-                    
-                    // Auto-trigger search after a tiny delay to let UI settle
-                    setTimeout(() => {
-                        if (document.getElementById('sourceLocation').value.trim() && document.getElementById('destination').value) {
-                            document.getElementById('btn-search').click();
-                        }
-                    }, 500);
-                }
-            } catch(e) {
-                console.error("Failed to apply AI search payload", e);
-            }
-        }
-        
+
     } catch (e) {
         document.getElementById('destination').innerHTML = '<option value="">Error loading places</option>';
     }
@@ -797,4 +743,52 @@ export const renderPlanner = async (rootElement) => {
             });
         });
     };
+
+    // ─── AI Auto-fill Logic (Moved here to ensure DOM event listeners are attached) ───
+    const payloadStr = sessionStorage.getItem('ai_search_payload');
+    if (payloadStr) {
+        try {
+            const payload = JSON.parse(payloadStr);
+            if (payload.action === 'SEARCH') {
+                if (payload.fromCity) {
+                    document.getElementById('sourceLocation').value = payload.fromCity;
+                }
+                if (payload.toCity && placesData.length > 0) {
+                    const searchCity = payload.toCity.toLowerCase();
+                    const matchedPlace = placesData.find(p => p.name.toLowerCase().includes(searchCity) || searchCity.includes(p.name.toLowerCase()));
+                    if (matchedPlace) {
+                        document.getElementById('destination').value = matchedPlace.id;
+                        // updateLandmarkDropdown is defined inside renderPlanner, so we can't call it here easily if it's out of scope? 
+                        // Wait, updateLandmarkDropdown is a function declared at line 393, so it is hoisted and accessible!
+                        updateLandmarkDropdown();
+                    }
+                }
+                if (payload.travelDate) {
+                    document.getElementById('travelDate').value = payload.travelDate;
+                }
+                if (payload.foodPreference) {
+                    const foodSelect = document.getElementById('foodPreference');
+                    if (payload.foodPreference === 'VEG') foodSelect.value = 'VEG';
+                    else if (payload.foodPreference === 'NON_VEG') foodSelect.value = 'NON_VEG';
+                }
+                if (payload.wheelchairRequired) {
+                    document.getElementById('specialReqs').value = 'Wheelchair Required';
+                }
+                if (payload.timePreference === 'morning') {
+                    const morningChip = document.querySelector('.time-chip[data-from="05:00"]');
+                    if (morningChip) morningChip.click();
+                }
+                
+                sessionStorage.removeItem('ai_search_payload');
+                
+                setTimeout(() => {
+                    if (document.getElementById('sourceLocation').value.trim() && document.getElementById('destination').value) {
+                        document.getElementById('btn-search').click();
+                    }
+                }, 500);
+            }
+        } catch(e) {
+            console.error("Failed to apply AI search payload", e);
+        }
+    }
 };
