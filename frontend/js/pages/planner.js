@@ -147,6 +147,8 @@ export const renderPlanner = async (rootElement) => {
                     <div class="form-group">
                         <label for="hotelRadius" style="font-weight:bold;">📏 <span data-i18n="planner_hotel_radius">Search Radius from Landmark</span></label>
                         <select id="hotelRadius" class="form-control">
+                            <option value="0.5">Within 500 m</option>
+                            <option value="1">Within 1 km</option>
                             <option value="2">Within 2 km</option>
                             <option value="5" selected>Within 5 km</option>
                             <option value="10">Within 10 km</option>

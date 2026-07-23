@@ -285,6 +285,12 @@ export const renderChat = async (rootElement) => {
                 try {
                     const payload = JSON.parse(match[1]);
                     if (payload.action === "SEARCH") {
+                        // Enhance remote AI payload with local keyword extraction
+                        const msgLower = message.toLowerCase();
+                        if (msgLower.includes('morning') && !payload.timePreference) payload.timePreference = 'morning';
+                        if (msgLower.includes('wheelchair') && payload.wheelchairRequired === undefined) payload.wheelchairRequired = true;
+                        if (msgLower.includes('veg') && !payload.foodPreference) payload.foodPreference = 'VEG';
+
                         // Store the payload in sessionStorage for planner.js to pick up
                         sessionStorage.setItem('ai_search_payload', JSON.stringify(payload));
                         shouldRedirectToPlanner = true;
