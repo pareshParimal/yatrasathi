@@ -12,7 +12,9 @@ import com.yatrasathi.backend.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,12 +49,33 @@ public class ChatService {
                 .build();
         chatMessageRepository.save(userMsg);
 
+        // Fetch history
+        List<ChatMessage> history = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(session.getId());
+        String conversationHistory = history.stream()
+                .map(msg -> msg.getRole() + ": " + msg.getContent())
+                .collect(Collectors.joining("\n"));
+
+        User user = session.getUser();
+        String langPref = user != null && user.getLanguagePref() != null ? user.getLanguagePref() : "hi";
+        String langInstruction = "hi".equalsIgnoreCase(langPref) 
+                ? "CRITICAL: You MUST converse entirely in Hindi using the Devanagari script." 
+                : "You must converse in English.";
+
         // Build Prompt Context
-        String context = session.getPlace() != null ? "Context: We are talking about " + session.getPlace().getName() + " in India. " : "";
-        String fullPrompt = context + "User asks: " + request.getMessage();
+        String systemPrompt = "System: You are 'YatraSathi AI', an empathetic, patient, and helpful travel assistant for senior citizens in India. "
+                + langInstruction + " "
+                + "Your goal is to help the user plan a train journey and book hotels. "
+                + "You must casually ask them where they want to travel from, where they want to go, and on what date. "
+                + "Ask these questions conversationally and naturally, one or two at a time. "
+                + "Once you have successfully gathered ALL THREE details (From City, To City, and Travel Date), you MUST output a special JSON payload at the very end of your response exactly like this: "
+                + "```json\n{\"action\": \"SEARCH\", \"fromCity\": \"<extracted_from_city>\", \"toCity\": \"<extracted_to_city>\", \"travelDate\": \"<extracted_date_yyyy-mm-dd>\"}\n```. "
+                + "Do not output the JSON until you have all three pieces of information. "
+                + "If the user is missing information, just ask for it. \n\n"
+                + "Conversation History:\n" + conversationHistory + "\n"
+                + "USER: " + request.getMessage() + "\nASSISTANT: ";
 
         // Get AI Response synchronously (blocking just for simplicity in MVP Controller)
-        String aiResponse = geminiService.generateContent(fullPrompt).block();
+        String aiResponse = geminiService.generateContent(systemPrompt).block();
 
         // Save AI Message
         ChatMessage aiMsg = ChatMessage.builder()

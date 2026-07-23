@@ -330,6 +330,45 @@ export const renderPlanner = async (rootElement) => {
         // Update landmark dropdown on destination change
         destSelect.addEventListener('change', updateLandmarkDropdown);
         updateLandmarkDropdown();
+
+        // ─── AI Auto-fill Logic ───
+        const payloadStr = sessionStorage.getItem('ai_search_payload');
+        if (payloadStr) {
+            try {
+                const payload = JSON.parse(payloadStr);
+                if (payload.action === 'SEARCH') {
+                    // Prefill Source
+                    if (payload.fromCity) {
+                        document.getElementById('sourceLocation').value = payload.fromCity;
+                    }
+                    // Prefill Destination
+                    if (payload.toCity && placesData.length > 0) {
+                        // Find a place that matches the toCity string (case insensitive, partial match)
+                        const searchCity = payload.toCity.toLowerCase();
+                        const matchedPlace = placesData.find(p => p.name.toLowerCase().includes(searchCity) || searchCity.includes(p.name.toLowerCase()));
+                        if (matchedPlace) {
+                            destSelect.value = matchedPlace.id;
+                            updateLandmarkDropdown();
+                        }
+                    }
+                    // Prefill Date
+                    if (payload.travelDate) {
+                        document.getElementById('travelDate').value = payload.travelDate;
+                    }
+                    
+                    // Clear the payload so it doesn't loop
+                    sessionStorage.removeItem('ai_search_payload');
+                    
+                    // Auto-trigger search after a tiny delay to let UI settle
+                    setTimeout(() => {
+                        document.getElementById('btn-search').click();
+                    }, 500);
+                }
+            } catch(e) {
+                console.error("Failed to apply AI search payload", e);
+            }
+        }
+        
     } catch (e) {
         document.getElementById('destination').innerHTML = '<option value="">Error loading places</option>';
     }

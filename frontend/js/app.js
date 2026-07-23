@@ -62,7 +62,7 @@ class AppRouter {
     }
 
     handleRoute() {
-        let hash = window.location.hash.substring(1) || 'home';
+        let hash = window.location.hash.substring(1) || 'chat';
         
         // Handle routes with params like places/123
         const parts = hash.split('/');
@@ -82,6 +82,10 @@ class AppRouter {
             logoutBtn.style.display = 'none';
    //         emergencyBtn.style.display = 'none';
         }
+        // Default route logic
+        if (window.location.hash === '') {
+            window.location.hash = api.isAuthenticated() ? '#chat' : '#login';
+        }
         if (!userId && view !== 'login') {
             window.location.hash = '#login';
             return;
@@ -89,7 +93,7 @@ class AppRouter {
         
         // Auto-redirect away from login if already authenticated
         if (userId && view === 'login') {
-            window.location.hash = '#home';
+            window.location.hash = '#chat';
             return;
         }
 

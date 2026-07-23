@@ -204,7 +204,28 @@ export const renderChat = async (rootElement) => {
                 currentSessionId = response.session.id;
             }
 
-            const botText = response.content;
+            let botText = response.content;
+            
+            // Check for JSON payload for SEARCH action
+            const jsonRegex = /```json\n([\s\S]*?)\n```/;
+            const match = botText.match(jsonRegex);
+            let shouldRedirectToPlanner = false;
+            
+            if (match && match[1]) {
+                try {
+                    const payload = JSON.parse(match[1]);
+                    if (payload.action === "SEARCH") {
+                        // Store the payload in sessionStorage for planner.js to pick up
+                        sessionStorage.setItem('ai_search_payload', JSON.stringify(payload));
+                        shouldRedirectToPlanner = true;
+                    }
+                } catch(e) {
+                    console.error("Failed to parse JSON payload from AI", e);
+                }
+                
+                // Remove the JSON block from the text shown to user
+                botText = botText.replace(jsonRegex, '').trim();
+            }
 
             // Add bot response to UI
             history.innerHTML += `
@@ -217,6 +238,13 @@ export const renderChat = async (rootElement) => {
             
             // Trigger TTS
             speakText(botText);
+            
+            // Redirect if we have a search action
+            if (shouldRedirectToPlanner) {
+                setTimeout(() => {
+                    window.location.hash = '#planner';
+                }, 1500); // Wait a short moment before redirecting
+            }
 
         } catch(error) {
             history.innerHTML += `
