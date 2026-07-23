@@ -65,4 +65,11 @@ public class AuthService {
                     .build();
         }
     }
+
+    public void updateLanguagePref(java.util.UUID userId, String lang) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setLanguagePref(lang);
+            userRepository.save(user);
+        });
+    }
 }

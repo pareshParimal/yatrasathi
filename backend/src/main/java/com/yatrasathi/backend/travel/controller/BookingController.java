@@ -45,10 +45,11 @@ public class BookingController {
             @RequestParam(required = false) String travelDate,
             @RequestParam(required = false, defaultValue = "00:00") String departureFrom,
             @RequestParam(required = false, defaultValue = "23:59") String departureTo,
-            @RequestParam(required = false, defaultValue = "24") int maxDurationHours) {
+            @RequestParam(required = false, defaultValue = "24") int maxDurationHours,
+            @RequestHeader(value = "x-user-language", defaultValue = "hi") String language) {
 
         List<Map<String, Object>> trains = bookingService.searchTrains(
-                fromCity, toCity, travelDate, departureFrom, departureTo, maxDurationHours);
+                fromCity, toCity, travelDate, departureFrom, departureTo, maxDurationHours, language);
         return ResponseEntity.ok(ApiResponse.success(trains));
     }
 
@@ -69,10 +70,11 @@ public class BookingController {
             @RequestParam(required = false) Double landmarkLng,
             @RequestParam(required = false) String landmarkName,
             @RequestParam(required = false) Double maxPricePerNight,
-            @RequestParam(required = false, defaultValue = "5.0") Double radiusKm) {
+            @RequestParam(required = false, defaultValue = "5.0") Double radiusKm,
+            @RequestHeader(value = "x-user-language", defaultValue = "hi") String language) {
 
         List<Map<String, Object>> hotels = bookingService.searchHotels(
-                destinationId, landmarkLat, landmarkLng, landmarkName, maxPricePerNight, radiusKm);
+                destinationId, landmarkLat, landmarkLng, landmarkName, maxPricePerNight, radiusKm, language);
         return ResponseEntity.ok(ApiResponse.success(hotels));
     }
 

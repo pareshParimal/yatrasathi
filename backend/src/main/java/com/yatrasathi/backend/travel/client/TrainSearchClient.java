@@ -30,9 +30,10 @@ public class TrainSearchClient {
             String travelDate,
             String departureFrom,
             String departureTo,
-            int maxDurationHours) {
+            int maxDurationHours,
+            String language) {
 
-        String prompt = buildPrompt(fromCity, toCity, travelDate, departureFrom, departureTo, maxDurationHours);
+        String prompt = buildPrompt(fromCity, toCity, travelDate, departureFrom, departureTo, maxDurationHours, language);
 
         return geminiService.generateContent(prompt)
                 .map(response -> parseTrainsFromResponse(response, fromCity, toCity, departureFrom, departureTo, maxDurationHours))
@@ -42,26 +43,25 @@ public class TrainSearchClient {
                 });
     }
 
-    private String buildPrompt(String fromCity, String toCity, String travelDate,
-                                String departureFrom, String departureTo, int maxDurationHours) {
+    private String buildPrompt(String fromCity, String toCity, String date, String depFrom, String depTo, int maxDuration, String language) {
+        String langDirective = "hi".equalsIgnoreCase(language) ? "Hindi (Devanagari script)" : "English";
+
         return String.format(
-            "You are an Indian Railways schedule expert. Generate a JSON array of realistic Indian train options " +
-            "from %s to %s on %s. The user prefers trains departing between %s and %s, " +
-            "with a maximum journey duration of %d hours.\n\n" +
-            "Return ONLY a valid JSON array with exactly 3-4 trains. Each train must have these fields:\n" +
-            "- id: train number string (e.g. \"12002\")\n" +
-            "- name: train name (use real Indian train names)\n" +
-            "- number: train number (e.g. \"12002\")\n" +
-            "- departure: departure time in HH:MM format\n" +
-            "- arrival: arrival time in HH:MM format\n" +
-            "- duration: journey duration string (e.g. \"7h 30m\")\n" +
-            "- durationMinutes: journey duration in minutes (integer)\n" +
-            "- price: ticket price in INR for sleeper class (integer)\n" +
-            "- classes: array of available classes (e.g. [\"SL\", \"3A\", \"2A\", \"1A\"])\n" +
-            "- availability: one of [\"AVAILABLE\", \"RAC\", \"WAITLIST\"]\n" +
-            "- days: array of days train runs (e.g. [\"Mon\", \"Wed\", \"Fri\"])\n\n" +
+            "You are an expert Indian Railways system. Generate a JSON array of realistic train schedules " +
+            "from %s to %s on %s. The trains MUST depart between %s and %s, and the journey MUST take less than %d hours.\n\n" +
+            "CRITICAL: All textual data (train names, classes) MUST be written in %s.\n\n" +
+            "Return ONLY a valid JSON array with at most 5 trains. Each train must have these fields:\n" +
+            "- id: unique string (e.g. 'train-1')\n" +
+            "- number: realistic 5-digit Indian train number (e.g. '12004')\n" +
+            "- name: realistic Indian train name in %s (e.g. 'Shatabdi Express', 'Rajdhani Express')\n" +
+            "- departure: departure time (e.g. '06:00 AM')\n" +
+            "- arrival: arrival time (e.g. '10:30 AM')\n" +
+            "- duration: duration string (e.g. '4h 30m')\n" +
+            "- classes: array of strings in %s (e.g. ['SL', '3A', '2A', '1A', 'CC'])\n" +
+            "- price: realistic base price in INR (integer)\n" +
+            "- availability: one of ['AVAILABLE', 'RAC', 'WAITLIST']\n\n" +
             "Return ONLY the JSON array, no explanation, no markdown code blocks.",
-            fromCity, toCity, travelDate, departureFrom, departureTo, maxDurationHours
+            fromCity, toCity, date, depFrom, depTo, maxDuration, langDirective, langDirective, langDirective
         );
     }
 

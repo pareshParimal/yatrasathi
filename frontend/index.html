@@ -21,12 +21,21 @@
                 <span>YatraSathi</span>
             </div>
             <ul class="nav-links">
-                <li><a href="#home" class="active" id="nav-home"><i data-lucide="home"></i> Dashboard</a></li>
-                <li><a href="#planner" id="nav-planner"><i data-lucide="map"></i> Plan Trip</a></li>
-                <li><a href="#places" id="nav-places"><i data-lucide="image"></i> Discover</a></li>
-                <li><a href="#chat" id="nav-chat"><i data-lucide="message-circle"></i> AI Assistant</a></li>
-                <li style="margin-top: 1rem;"><a href="#" id="nav-logout" style="color: #ef4444;"><i data-lucide="log-out"></i> Logout</a></li>
+                <li><a href="#home" class="active" id="nav-home"><i data-lucide="home"></i> <span data-i18n="nav_dashboard">Dashboard</span></a></li>
+                <li><a href="#planner" id="nav-planner"><i data-lucide="map"></i> <span data-i18n="nav_planner">Plan Trip</span></a></li>
+                <li><a href="#places" id="nav-places"><i data-lucide="image"></i> <span data-i18n="nav_places">Discover</span></a></li>
+                <li><a href="#chat" id="nav-chat"><i data-lucide="message-circle"></i> <span data-i18n="nav_chat">AI Assistant</span></a></li>
+                <li style="margin-top: 1rem;"><a href="#" id="nav-logout" style="color: #ef4444;"><i data-lucide="log-out"></i> <span data-i18n="nav_logout">Logout</span></a></li>
             </ul>
+            <div class="nav-bottom" style="display:flex; flex-direction:column; gap:10px;">
+                <select id="lang-switcher" style="padding: 8px; border-radius: 8px; border: 1px solid #e5e7eb; outline: none; cursor: pointer; font-family: 'Outfit';">
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="en">English</option>
+                </select>
+                <button class="emergency-btn" id="btn-emergency">
+                    <i data-lucide="alert-circle"></i> Share Location
+                </button>
+            </div>
         </nav>
         
         <main class="main-content">
