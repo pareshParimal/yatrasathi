@@ -34,19 +34,21 @@ public class TelegramBotService {
         
         String mapLink = "https://maps.google.com/?q=" + latitude + "," + longitude;
         
-        String prompt = "You are an AI assistant for a travel safety app for elderly users in India. " +
-                "Write a short, reassuring emergency check-in message to the user's family. " +
-                "The user (" + userName + ") is currently on a trip to " + destinationName + ". " +
-                "Their medical/special requirements are: " + (specialRequirements != null ? specialRequirements : "None") + ". " +
-                "Mention that they are safe and this is an automated location update. " +
-                "Include this Google Maps link: " + mapLink + ". " +
-                "Keep it under 3 sentences.";
+        String message = "🚨 **Safety Update from YatraSathi** 🚨\n\n" +
+                "This is an automated check-in. " + userName + " is currently traveling to " + destinationName + ".\n\n" +
+                "📍 **Current Location:** " + mapLink + "\n\n" +
+                "Medical Info: " + (specialRequirements != null && !specialRequirements.trim().isEmpty() ? specialRequirements : "None specified") + "\n" +
+                "They are safe and this message was sent automatically via the YatraSathi app.";
 
-        geminiService.generateContent(prompt).subscribe(message -> {
-            for (String chatId : chatIds) {
-                sendMessage(chatId, message).subscribe();
-            }
-        });
+        for (String chatId : chatIds) {
+            sendMessage(chatId, message).subscribe(
+                success -> log.debug("Sent static location message to {}", chatId)
+            );
+            // Additionally send a native Telegram Map Pin
+            sendLocation(chatId, latitude, longitude).subscribe(
+                success -> log.debug("Sent native location pin to {}", chatId)
+            );
+        }
     }
 
     public Mono<Boolean> sendLocation(String chatId, Double latitude, Double longitude) {
