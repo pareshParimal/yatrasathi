@@ -27,9 +27,10 @@ public class HotelSearchClient {
             String destinationCity,
             String nearLandmark,
             Double maxPricePerNight,
-            Double radiusKm) {
+            Double radiusKm,
+            String language) {
 
-        String prompt = buildPrompt(destinationCity, nearLandmark, maxPricePerNight, radiusKm);
+        String prompt = buildPrompt(destinationCity, nearLandmark, maxPricePerNight, radiusKm, language);
 
         return geminiService.generateContent(prompt)
                 .map(response -> parseHotelsFromResponse(response, destinationCity, nearLandmark))
@@ -39,7 +40,7 @@ public class HotelSearchClient {
                 });
     }
 
-    private String buildPrompt(String destinationCity, String nearLandmark, Double maxPrice, Double radiusKm) {
+    private String buildPrompt(String destinationCity, String nearLandmark, Double maxPrice, Double radiusKm, String language) {
         String priceClause = (maxPrice != null && maxPrice > 0)
                 ? "with a maximum budget of ₹" + maxPrice.intValue() + " per night"
                 : "across all budget categories (budget to luxury)";
@@ -48,21 +49,24 @@ public class HotelSearchClient {
                 ? "preferably near " + nearLandmark
                 : "well-located for tourists";
 
+        String langDirective = "hi".equalsIgnoreCase(language) ? "Hindi (Devanagari script)" : "English";
+
         return String.format(
             "You are an expert Indian travel advisor. Generate a JSON array of realistic hotel options " +
             "in %s, India, %s, %s, within approximately %.0f km of the main attraction.\n\n" +
+            "CRITICAL: All textual data (hotel names, vicinity, amenities) MUST be written in %s.\n\n" +
             "Return ONLY a valid JSON array with exactly 4 hotels. Each hotel must have these fields:\n" +
-            "- name: realistic hotel name (use real Indian hotel brand names like Taj, Lemon Tree, FabHotel, OYO, Treebo, etc.)\n" +
+            "- name: realistic hotel name in %s (use real Indian hotel brand names like Taj, Lemon Tree, FabHotel, OYO, Treebo, etc.)\n" +
             "- rating: rating out of 5.0 (number with 1 decimal, e.g. 4.2)\n" +
             "- price: price per night in INR (integer)\n" +
             "- priceCategory: one of [\"Budget\", \"Mid-range\", \"Luxury\"]\n" +
-            "- vicinity: brief location description (e.g. \"Near Taj Mahal Gate 2\")\n" +
-            "- nearDescription: distance string (e.g. \"~1.2 km from Taj Mahal\")\n" +
-            "- amenities: array of 3-5 relevant amenities chosen from: [\"Free WiFi\", \"AC\", \"Lift\", \"Ground Floor Available\", \"Vegetarian Kitchen\", \"Jain Food Available\", \"Multi-cuisine Restaurant\", \"Wheelchair Accessible\", \"Medical Assistance\", \"24x7 Reception\", \"Taxi Service\"]\n" +
+            "- vicinity: brief location description in %s (e.g. \"Near Taj Mahal Gate 2\")\n" +
+            "- nearDescription: distance string in %s (e.g. \"~1.2 km from Taj Mahal\")\n" +
+            "- amenities: array of 3-5 relevant amenities chosen from: [\"Free WiFi\", \"AC\", \"Lift\", \"Ground Floor Available\", \"Vegetarian Kitchen\", \"Jain Food Available\", \"Multi-cuisine Restaurant\", \"Wheelchair Accessible\", \"Medical Assistance\", \"24x7 Reception\", \"Taxi Service\"] and translated to %s\n" +
             "- checkIn: check-in time (e.g. \"12:00 PM\")\n" +
             "- checkOut: check-out time (e.g. \"11:00 AM\")\n\n" +
             "Return ONLY the JSON array, no explanation, no markdown code blocks.",
-            destinationCity, landmarkClause, priceClause, radiusKm != null ? radiusKm : 5.0
+            destinationCity, landmarkClause, priceClause, radiusKm != null ? radiusKm : 5.0, langDirective, langDirective, langDirective, langDirective, langDirective
         );
     }
 

@@ -48,7 +48,7 @@ public class User {
 
     @Column(name = "language_pref")
     @Builder.Default
-    private String languagePref = "en";
+    private String languagePref = "hi";
 
     @Column(name = "is_active")
     @Builder.Default

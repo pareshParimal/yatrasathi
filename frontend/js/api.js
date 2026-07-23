@@ -1,12 +1,14 @@
 const API_BASE_URL = 'https://yatrasathi-production.up.railway.app/api/v1';
 
-// We will read the user ID from localStorage
+// We will read the user ID and language from localStorage
 const getUserId = () => localStorage.getItem('yatra_user_id') || '';
+const getLanguage = () => localStorage.getItem('yatra_lang') || 'hi'; // Default to Hindi
 
 async function fetchAPI(endpoint, options = {}) {
     const headers = {
         'Content-Type': 'application/json',
         'X-User-Id': getUserId(),
+        'X-User-Language': getLanguage(),
         ...options.headers
     };
 
@@ -26,6 +28,9 @@ async function fetchAPI(endpoint, options = {}) {
 }
 
 export const api = {
+    // Auth & User
+    updateLanguagePref: (lang) => fetchAPI(`/auth/language?lang=${lang}`, { method: 'PUT' }),
+
     // Places
     getPlaces: () => fetchAPI('/places'),
     getPlaceContent: (id) => fetchAPI(`/places/${id}/content`),

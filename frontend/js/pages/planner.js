@@ -133,136 +133,148 @@ export const renderPlanner = async (rootElement) => {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
 
                     <!-- Near Famous Site -->
-                    <div class="form-group">
-                        <label for="hotelNearSite" style="font-weight:bold;">🗺️ Stay Near</label>
-                        <p style="font-size:0.85rem; color:#6b7280; margin: 4px 0 8px;">
-                            Hotels will be searched close to this landmark.
-                        </p>
-                        <select id="hotelNearSite" class="form-control">
-                            <option value="">Near Destination Center</option>
-                        </select>
-                    </div>
+        <div id="step-1" class="wizard-step active" style="margin-top: 1rem;">
+            <h2 data-i18n="planner_title" style="margin-bottom: 1.5rem; text-align: center; color: var(--primary);">Plan Your Journey</h2>
 
-                    <!-- Hotel Radius -->
-                    <div class="form-group">
-                        <label for="hotelRadius" style="font-weight:bold;">📏 Search Radius from Landmark</label>
-                        <select id="hotelRadius" class="form-control">
-                            <option value="2">Within 2 km</option>
-                            <option value="5" selected>Within 5 km</option>
-                            <option value="10">Within 10 km</option>
-                        </select>
-                    </div>
-
-                    <!-- Max Hotel Price -->
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label style="font-weight:bold;">💰 Max Budget Per Night</label>
-                        <div id="price-chips" style="display:flex; flex-wrap:wrap; gap:10px; margin-top: 12px;">
-                            <button class="price-chip" data-price="2000"
-                                style="padding: 10px 22px; border-radius: 999px; border: 2px solid #f97316; background: transparent; color: #f97316; font-size: 1rem; cursor: pointer; font-weight:600;">
-                                ₹2,000
-                            </button>
-                            <button class="price-chip" data-price="5000"
-                                style="padding: 10px 22px; border-radius: 999px; border: 2px solid #f97316; background: transparent; color: #f97316; font-size: 1rem; cursor: pointer; font-weight:600;">
-                                ₹5,000
-                            </button>
-                            <button class="price-chip" data-price="10000"
-                                style="padding: 10px 22px; border-radius: 999px; border: 2px solid #f97316; background: transparent; color: #f97316; font-size: 1rem; cursor: pointer; font-weight:600;">
-                                ₹10,000
-                            </button>
-                            <button class="price-chip" data-price="0"
-                                style="padding: 10px 22px; border-radius: 999px; border: 2px solid #9ca3af; background: transparent; color: #6b7280; font-size: 1rem; cursor: pointer; font-weight:600;">
-                                No Limit
-                            </button>
-                        </div>
-                        <input type="hidden" id="maxHotelPrice" value="0">
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- OTHER PREFERENCES -->
+            <!-- CARD 1: Route & Date -->
             <div class="card" style="margin-bottom: 1.5rem;">
-                <h2 style="display:flex; align-items:center; gap:10px; margin-bottom: 1.5rem;">
-                    <i data-lucide="settings-2" style="width:24px;height:24px;color:var(--primary);"></i> Other Preferences
-                </h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div class="form-group">
-                        <label for="budgetMin" style="font-weight:bold;">💵 Train Min Budget (₹)</label>
-                        <input type="number" id="budgetMin" class="form-control" value="1000">
-                    </div>
-                    <div class="form-group">
-                        <label for="budgetMax" style="font-weight:bold;">💵 Train Max Budget (₹)</label>
-                        <input type="number" id="budgetMax" class="form-control" value="5000">
-                    </div>
-                    <div class="form-group">
-                        <label for="foodPreference" style="font-weight:bold;">🍽️ Food Preference</label>
-                        <select id="foodPreference" class="form-control">
-                            <option value="VEG">🥗 Vegetarian</option>
-                            <option value="NON_VEG">🍗 Non-Vegetarian</option>
-                            <option value="JAIN">🌿 Jain</option>
-                            <option value="VEGAN">🌱 Vegan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="specialReqs" style="font-weight:bold;">♿ Special Requirements</label>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="text" id="specialReqs" class="form-control" placeholder="e.g., Wheelchair access">
-                            <button id="voice-special" title="Speak" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;flex-shrink:0;">
-                                <i data-lucide="mic" style="width:16px;height:16px;"></i>
-                            </button>
+                <div class="form-group" style="display:flex; flex-direction:column; gap:1.5rem;">
+                    
+                    <div style="display:flex; flex-wrap:wrap; gap:1.5rem;">
+                        <div style="flex:1; min-width:250px;">
+                            <label data-i18n="planner_from">From Where?</label>
+                            <input type="text" id="sourceLocation" placeholder="Enter starting city (e.g. Lucknow)" value="Lucknow">
                         </div>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2; background: #eef2ff; padding: 1rem; border-radius: 8px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; color: var(--primary);">
-                            <input type="checkbox" id="shareTelegram" style="width: 1.2rem; height: 1.2rem;">
-                            📡 Enable Safety Tracking (Share location via Telegram)
-                        </label>
-                        <div id="interval-container" style="display: none; margin-top: 1rem;">
-                            <label for="shareInterval">Update Frequency</label>
-                            <select id="shareInterval" class="form-control" style="max-width: 200px;">
-                                <option value="1">Every 1 Hour</option>
-                                <option value="2">Every 2 Hours</option>
-                                <option value="5">Every 5 Hours</option>
-                                <option value="12">Every 12 Hours</option>
+                        
+                        <div style="flex:1; min-width:250px;">
+                            <label data-i18n="planner_to">Where to?</label>
+                            <select id="destination">
+                                <option value="" disabled selected>Select destination</option>
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <div style="margin-top: 2rem; text-align:center;">
-                    <button id="btn-search" class="btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px;">
-                        <i data-lucide="search"></i> Find Trains & Hotels
-                    </button>
+                    <div style="width: 100%; max-width: 300px;">
+                        <label data-i18n="planner_date">Travel Date</label>
+                        <input type="date" id="travelDate">
+                    </div>
                 </div>
+            </div>
+
+            <!-- CARD 2: Travel Preferences -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <label style="margin-bottom: 1rem; display:block;" data-i18n="planner_time_pref">Travel Time (Your Convenience)</label>
+                <div class="chip-group" id="time-chips">
+                    <div class="chip active" data-start="05:00" data-end="12:00" data-i18n="planner_morning">Morning (5 AM - 12 PM)</div>
+                    <div class="chip" data-start="12:00" data-end="17:00" data-i18n="planner_afternoon">Afternoon (12 PM - 5 PM)</div>
+                    <div class="chip" data-start="17:00" data-end="22:00" data-i18n="planner_evening">Evening (5 PM - 10 PM)</div>
+                    <div class="chip" data-start="22:00" data-end="05:00" data-i18n="planner_night">Night (10 PM - 5 AM)</div>
+                </div>
+                <input type="hidden" id="departureFrom" value="05:00">
+                <input type="hidden" id="departureTo" value="12:00">
+                <input type="hidden" id="maxDuration" value="24">
+
+                <div style="margin-top: 1.5rem;">
+                    <label data-i18n="planner_max_duration">Maximum Journey Duration</label>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <input type="range" id="durationSlider" min="2" max="48" value="24" style="flex:1;">
+                        <span id="durationVal" style="font-weight:600; min-width:60px;">24 hours</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 3: Hotel Preferences -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="form-group" style="display:flex; flex-direction:column; gap:1.5rem;">
+                    
+                    <div>
+                        <label style="margin-bottom: 1rem; display:block;" data-i18n="planner_hotel_budget">Hotel Budget (Per Night)</label>
+                        <div class="chip-group" id="hotel-budget-chips">
+                            <div class="chip" data-price="2000">₹2000</div>
+                            <div class="chip" data-price="4000">₹4000</div>
+                            <div class="chip active" data-price="7000">₹7000</div>
+                            <div class="chip" data-price="15000">Luxury (₹15000)</div>
+                        </div>
+                        <input type="hidden" id="maxHotelPrice" value="7000">
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:1.5rem;">
+                        <div style="flex:1; min-width:250px;">
+                            <label data-i18n="planner_hotel_radius">Max Distance from Attraction</label>
+                            <select id="hotelRadius">
+                                <option value="2">Walking distance (2 km)</option>
+                                <option value="5" selected>Short drive (5 km)</option>
+                                <option value="15">Anywhere in city (15 km)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="flex:1; min-width:250px;">
+                            <label data-i18n="planner_food_pref">Food Preference</label>
+                            <select id="foodPreference">
+                                <option value="PURE_VEG" selected>Pure Vegetarian</option>
+                                <option value="JAIN">Jain Food (No onion/garlic)</option>
+                                <option value="ANY">Any</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label data-i18n="planner_special_req">Special Requirements (Wheelchair, Ground floor etc)</label>
+                        <input type="text" id="specialReqs" placeholder="e.g., Require ground floor room, Wheelchair needed">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 4: Safety & Tracking -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <label class="checkbox-container" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="shareTelegram" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
+                    <span style="font-size: 1.05rem; font-weight: 500;" data-i18n="planner_share_telegram">Share live location with family on Telegram</span>
+                </label>
+                <div id="interval-container" style="display: none; margin-top: 1rem;">
+                    <label for="shareInterval">Update Frequency</label>
+                    <select id="shareInterval" class="form-control" style="max-width: 200px;">
+                        <option value="1">Every 1 Hour</option>
+                        <option value="2">Every 2 Hours</option>
+                        <option value="5">Every 5 Hours</option>
+                        <option value="12">Every 12 Hours</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem; margin-bottom: 3rem;">
+                <button id="btn-search" class="btn-primary" style="font-size: 1.2rem; padding: 15px 40px; box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.4);">
+                    <span data-i18n="btn_find_trains">Find Trains & Hotels</span> <i data-lucide="arrow-right"></i>
+                </button>
             </div>
         </div>
 
         <!-- STEP 2: RESULTS -->
         <div id="step-2" style="display: none; margin-top: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap:1rem;">
-                <h2 id="step2-title">Step 2: Select Your Train & Hotel</h2>
+                <h2 id="step2-title" data-i18n="step2_title">Step 2: Select Your Train & Hotel</h2>
                 <button id="btn-back" class="btn-secondary" style="display:flex;align-items:center;gap:8px;">
-                    <i data-lucide="arrow-left"></i> Edit Preferences
+                    <i data-lucide="arrow-left"></i> <span data-i18n="btn_edit_pref">Edit Preferences</span>
                 </button>
             </div>
 
             <!-- Train Results -->
             <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
-                <h3 style="display:flex;align-items:center;gap:10px;"><i data-lucide="train"></i> Available Trains</h3>
+                <h3 style="display:flex;align-items:center;gap:10px;"><i data-lucide="train"></i> <span data-i18n="avail_trains">Available Trains</span></h3>
                 <p id="train-route-label" style="color:#6b7280; margin-bottom:1rem;"></p>
                 <div id="train-options" style="display: flex; flex-direction: column; gap: 1rem; margin-top:1rem;"></div>
             </div>
 
             <!-- Hotel Results -->
-            <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid #f97316;">
-                <h3 style="display:flex;align-items:center;gap:10px;"><i data-lucide="hotel"></i> Available Hotels</h3>
+            <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid #8b5cf6;">
+                <h3 style="display:flex;align-items:center;gap:10px; color:#6d28d9;"><i data-lucide="building"></i> <span data-i18n="avail_hotels">Nearby Hotels</span></h3>
                 <p id="hotel-location-label" style="color:#6b7280; margin-bottom:1rem;"></p>
-                <div id="hotel-options" style="display: flex; flex-direction: column; gap: 1rem; margin-top:1rem;"></div>
+                <div id="hotel-options"></div>
             </div>
 
-            <div style="text-align: center; margin-top: 2rem;">
-                <button class="btn-primary" id="btn-confirm-booking" style="padding: 1rem 2.5rem; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 8px;">
-                    <i data-lucide="check-circle"></i> Confirm Booking & Generate Itinerary
+            <div style="text-align: center; margin-top: 2rem; margin-bottom: 3rem;">
+                <button id="btn-confirm-booking" class="btn-primary" style="font-size: 1.2rem; padding: 15px 40px; background: #16a34a; border-color: #16a34a;">
+                    <i data-lucide="check-circle"></i> <span data-i18n="btn_confirm_booking">Confirm Booking</span>
                 </button>
             </div>
         </div>

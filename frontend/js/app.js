@@ -4,6 +4,7 @@ import { renderPlaces } from './pages/places.js';
 import { renderChat } from './pages/chat.js';
 import { renderLogin } from './pages/login.js';
 import { api } from './api.js';
+import { applyTranslations } from './i18n.js';
 
 class AppRouter {
     constructor() {
@@ -34,6 +35,30 @@ class AppRouter {
         
         // Initial route
         this.handleRoute();
+
+        // Setup Language Switcher
+        const langSwitcher = document.getElementById('lang-switcher');
+        const currentLang = localStorage.getItem('yatra_lang') || 'hi';
+        langSwitcher.value = currentLang;
+
+        langSwitcher.addEventListener('change', async (e) => {
+            const newLang = e.target.value;
+            localStorage.setItem('yatra_lang', newLang);
+            applyTranslations(newLang);
+            
+            // If user is logged in, sync with backend
+            const uid = localStorage.getItem('yatra_user_id');
+            if (uid) {
+                try {
+                    await api.updateLanguagePref(newLang);
+                } catch (err) {
+                    console.error("Failed to sync language preference", err);
+                }
+            }
+        });
+
+        // Apply translations on initial load
+        setTimeout(() => applyTranslations(currentLang), 100);
     }
 
     handleRoute() {
@@ -84,6 +109,11 @@ class AppRouter {
         renderFunc(this.root, param).then(() => {
             lucide.createIcons();
         });
+
+        // Apply translations after rendering the new page
+        setTimeout(() => {
+            applyTranslations(localStorage.getItem('yatra_lang') || 'hi');
+        }, 50);
     }
     
     async handleEmergency() {

@@ -29,14 +29,15 @@ public class BookingService {
     /**
      * Search for real trains between two cities with user-defined filters.
      */
-    @Cacheable(value = "trains", key = "{#fromCity, #toCity, #travelDate, #departureFrom, #departureTo, #maxDurationHours}")
+    @Cacheable(value = "trains", key = "{#fromCity, #toCity, #travelDate, #departureFrom, #departureTo, #maxDurationHours, #language}")
     public List<Map<String, Object>> searchTrains(
             String fromCity,
             String toCity,
             String travelDate,
             String departureFrom,
             String departureTo,
-            int maxDurationHours) {
+            int maxDurationHours,
+            String language) {
 
         if (fromCity == null || fromCity.isBlank()) fromCity = "Delhi";
         if (toCity == null || toCity.isBlank()) toCity = "Agra";
@@ -51,7 +52,7 @@ public class BookingService {
         final String finalDepTo = departureTo;
         final int finalMaxDur = maxDurationHours;
 
-        return trainSearchClient.searchTrains(finalFrom, finalTo, finalDate, finalDepFrom, finalDepTo, finalMaxDur)
+        return trainSearchClient.searchTrains(finalFrom, finalTo, finalDate, finalDepFrom, finalDepTo, finalMaxDur, language)
                 .block();
     }
 
@@ -59,14 +60,15 @@ public class BookingService {
      * Search for hotels near a destination. If a specific landmark lat/lng is provided, use that.
      * Otherwise fall back to destination center coordinates.
      */
-    @Cacheable(value = "hotels", key = "{#destinationId, #landmarkLat, #landmarkLng, #landmarkName, #maxPricePerNight, #radiusKm}")
+    @Cacheable(value = "hotels", key = "{#destinationId, #landmarkLat, #landmarkLng, #landmarkName, #maxPricePerNight, #radiusKm, #language}")
     public List<Map<String, Object>> searchHotels(
             UUID destinationId,
             Double landmarkLat,
             Double landmarkLng,
             String landmarkName,
             Double maxPricePerNight,
-            Double radiusKm) {
+            Double radiusKm,
+            String language) {
 
         if (radiusKm == null || radiusKm <= 0) radiusKm = 5.0;
 
@@ -85,7 +87,7 @@ public class BookingService {
         }
 
         log.info("Searching hotels in {} near {} via Gemini", destinationCity, nearLandmark);
-        return hotelSearchClient.searchHotels(destinationCity, nearLandmark, maxPricePerNight, radiusKm).block();
+        return hotelSearchClient.searchHotels(destinationCity, nearLandmark, maxPricePerNight, radiusKm, language).block();
     }
 
     private List<Map<String, Object>> getEnhancedMockHotels(String nearDescription, Double maxPrice) {
@@ -117,8 +119,8 @@ public class BookingService {
      * Legacy method kept for backward compatibility.
      */
     public Map<String, Object> getMockBookingOptions(UUID destinationId, Double budgetMax) {
-        List<Map<String, Object>> trains = searchTrains("Delhi", "Destination", null, "00:00", "23:59", 24);
-        List<Map<String, Object>> hotels = searchHotels(destinationId, null, null, null, budgetMax, 5.0);
+        List<Map<String, Object>> trains = searchTrains("Delhi", "Destination", null, "00:00", "23:59", 24, "hi");
+        List<Map<String, Object>> hotels = searchHotels(destinationId, null, null, null, budgetMax, 5.0, "hi");
         return Map.of("trains", trains, "hotels", hotels);
     }
 
