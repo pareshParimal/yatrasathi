@@ -591,6 +591,18 @@ export const renderPlanner = async (rootElement) => {
 
             const foodBtn = document.getElementById('btn-order-food');
             foodBtn.style.display = 'flex';
+            
+            const pendingFoodStr = sessionStorage.getItem('pending_food_order');
+            if (pendingFoodStr) {
+                const pendingFood = JSON.parse(pendingFoodStr);
+                sessionStorage.removeItem('pending_food_order');
+                
+                // Automatically open the food order modal
+                setTimeout(() => {
+                    foodBtn.click();
+                    // Optional: We could also auto-select the station if we wanted, but popping the modal is a great start.
+                }, 1000);
+            }
 
             // Generate itinerary in background
             api.generateItinerary(currentPlanId).then(() => {
@@ -783,6 +795,13 @@ export const renderPlanner = async (rootElement) => {
                     if (distanceSelect) {
                         distanceSelect.value = String(payload.hotelMaxDistanceKm);
                     }
+                }
+                
+                if (payload.orderTrainFood) {
+                    sessionStorage.setItem('pending_food_order', JSON.stringify({
+                        station: payload.trainFoodStation,
+                        item: payload.trainFoodItem
+                    }));
                 }
                 
                 sessionStorage.removeItem('ai_search_payload');
