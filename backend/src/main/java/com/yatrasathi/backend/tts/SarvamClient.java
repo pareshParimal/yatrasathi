@@ -17,8 +17,15 @@ public class SarvamClient {
     private final WebClient webClient;
     private final String apiKey;
 
-    public SarvamClient(WebClient.Builder webClientBuilder, @Value("${sarvam.api.key}") String apiKey) {
-        this.webClient = webClientBuilder.baseUrl("https://api.sarvam.ai").build();
+    public SarvamClient(@Value("${sarvam.api.key}") String apiKey) {
+        org.springframework.web.reactive.function.client.ExchangeStrategies strategies = org.springframework.web.reactive.function.client.ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
+                .build();
+
+        this.webClient = WebClient.builder()
+                .exchangeStrategies(strategies)
+                .baseUrl("https://api.sarvam.ai")
+                .build();
         this.apiKey = apiKey;
     }
 

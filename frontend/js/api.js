@@ -92,7 +92,7 @@ export const api = {
     getTelegramUsers: () => fetchAPI('/location/telegram-users'),
 
     // TTS
-    generateSpeech: (text, languageCode) => fetch(`${BASE_URL}/tts/generate`, {
+    generateSpeech: (text, languageCode) => fetch(`${API_BASE_URL}/tts/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, languageCode })
