@@ -62,6 +62,63 @@ export const renderHome = async (rootElement) => {
 
         </div>
 
+<!-- ================= HIRE LOCAL GUIDE ================= -->
+<div class="card" style="margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; background: linear-gradient(to right, #f2fbf5, #ffffff); border: 1px solid #dcfce7; border-radius: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; overflow: hidden;">
+    
+    <!-- Abstract building shape illustration via CSS or SVG -->
+    <svg style="position: absolute; right: 0; bottom: -20px; opacity: 0.05; width: 400px; height: 200px; pointer-events: none;" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 80 L50 20 L75 10 L100 20 L100 80 Z" fill="#16a34a"/>
+        <path d="M110 80 L110 40 L130 30 L150 40 L150 80 Z" fill="#16a34a"/>
+        <path d="M10 80 L10 50 L30 40 L45 50 L45 80 Z" fill="#16a34a"/>
+        <path d="M0 80 L200 80" stroke="#16a34a" stroke-width="4"/>
+    </svg>
+
+    <div style="position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 2rem;">
+        
+        <div style="flex: 1; min-width: 300px;">
+            <div style="display:flex; gap: 10px; align-items: center; margin-bottom:1.5rem;">
+                <div style="background:#dcfce7; color:#16a34a; font-weight:700; font-size:0.75rem; padding:6px 12px; border-radius:4px; letter-spacing: 0.5px;" data-i18n="home_hire_guide_badge">HIRE A SAATHI FOR YOU</div>
+                <div style="background:#fef3c7; color:#d97706; font-weight:700; font-size:0.75rem; padding:6px 12px; border-radius:4px; letter-spacing: 0.5px; border: 1px solid #fde68a;" data-i18n="home_upcoming_feature"><i data-lucide="sparkles" style="width: 12px; height: 12px; display: inline-block; margin-right: 4px;"></i>UPCOMING FEATURE</div>
+            </div>
+            
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <img src="https://i.pinimg.com/736x/dd/46/51/dd4651299196d16794ab1a79a3785b84.jpg" alt="Guide" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;" data-i18n="home_guide_name">Hire a Saathi, Hire a Sarvan Kumar</h3>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+                        <span style="color: #f59e0b; font-size: 1rem;">⭐</span>
+                        <span style="font-weight: 600; font-size: 0.95rem;">4.9</span>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">(482 Reviews)</span>
+                    </div>
+                    <p style="color: #10b981; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;" data-i18n="home_guide_title">Local Guide & Travel Expert</p>
+                    <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 500;">
+                        <span style="display: flex; align-items: center; gap: 4px;" data-i18n="home_guide_location"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Journey Specialist</span>
+                        <span style="display: flex; align-items: center; gap: 4px;">|</span>
+                        <span style="display: flex; align-items: center; gap: 4px;" data-i18n="home_guide_trips"><i data-lucide="users" style="width:14px;height:14px;"></i> 1450+ Trips Completed</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem; background: #e0f8e9; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; display: inline-block; font-size: 0.9rem;" data-i18n="home_guide_quote">
+                "Explore every destination through the eyes of a local."
+            </div>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 1.5rem; align-items: flex-end; min-width: 250px;">
+            <button class="btn-primary" style="background: #10b981; border-radius: 8px; padding: 0.7rem 1.25rem; display: flex; gap: 6px; align-items: center; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);" onclick="alert('Connecting you with Sarvan Kumar...')" data-i18n="home_guide_btn">
+                Hire Guide <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+            </button>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; color: var(--text-main); font-size: 0.85rem; font-weight: 500; text-align: left; width: 100%;">
+                <span style="display:flex; gap:8px; align-items:center;" data-i18n="home_guide_feat1"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#10b981;"></i> Languages: Hindi, English</span>
+                <span style="display:flex; gap:8px; align-items:center;" data-i18n="home_guide_feat2"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#10b981;"></i> Expert in Culture & Heritage</span>
+                <span style="display:flex; gap:8px; align-items:center;" data-i18n="home_guide_feat3"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#10b981;"></i> Temple & City Tours</span>
+                <span style="display:flex; gap:8px; align-items:center;" data-i18n="home_guide_feat4"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#10b981;"></i> Personalized Experience</span>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
         <!-- DETAILS MODAL -->
         <div id="details-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
             <div class="card" style="width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; background: white; padding: 2rem;">

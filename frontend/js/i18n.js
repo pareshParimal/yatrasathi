@@ -71,7 +71,19 @@ export const i18n = {
         "home_train_food_desc": "सीधे अपनी ट्रेन की सीट पर गर्म, स्वच्छ भोजन ऑर्डर करने के लिए विश्वसनीय प्लेटफॉर्म खोजें।",
         "home_view_options": "विकल्प देखें",
         "home_emergency_contacts": "आपातकालीन संपर्क",
-        "home_emergency_contacts_desc": "उन परिवार के सदस्यों को जोड़ें जो यात्रा के दौरान टेलीग्राम के माध्यम से आपके लाइव स्थान अपडेट प्राप्त करेंगे।"
+        "home_emergency_contacts_desc": "उन परिवार के सदस्यों को जोड़ें जो यात्रा के दौरान टेलीग्राम के माध्यम से आपके लाइव स्थान अपडेट प्राप्त करेंगे।",
+        "home_hire_guide_badge": "अपने लिए एक साथी बुक करें",
+        "home_upcoming_feature": "आगामी सुविधा",
+        "home_guide_name": "एक साथी बुक करें, एक श्रवण कुमार बुक करें",
+        "home_guide_title": "स्थानीय गाइड और यात्रा विशेषज्ञ",
+        "home_guide_location": "यात्रा विशेषज्ञ",
+        "home_guide_trips": "1450+ यात्राएं पूरी कीं",
+        "home_guide_quote": "\"स्थानीय नजरिए से हर गंतव्य का अन्वेषण करें।\"",
+        "home_guide_btn": "गाइड बुक करें",
+        "home_guide_feat1": "भाषाएं: हिंदी, अंग्रेजी",
+        "home_guide_feat2": "संस्कृति और विरासत में विशेषज्ञ",
+        "home_guide_feat3": "मंदिर और सिटी टूर्स",
+        "home_guide_feat4": "व्यक्तिगत अनुभव"
     },
     en: {
         "nav_home": "Home",
@@ -146,7 +158,19 @@ export const i18n = {
         "home_train_food_desc": "Find reliable platforms to order hot, hygienic food directly to your train seat.",
         "home_view_options": "View Options",
         "home_emergency_contacts": "Emergency Contacts",
-        "home_emergency_contacts_desc": "Add family members who will receive your live location updates via Telegram during trips."
+        "home_emergency_contacts_desc": "Add family members who will receive your live location updates via Telegram during trips.",
+        "home_hire_guide_badge": "HIRE A SAATHI FOR YOU",
+        "home_upcoming_feature": "UPCOMING FEATURE",
+        "home_guide_name": "Hire a Saathi, Hire a Sarvan Kumar",
+        "home_guide_title": "Local Guide & Travel Expert",
+        "home_guide_location": "Journey Specialist",
+        "home_guide_trips": "1450+ Trips Completed",
+        "home_guide_quote": "\"Explore every destination through the eyes of a local.\"",
+        "home_guide_btn": "Hire Guide",
+        "home_guide_feat1": "Languages: Hindi, English",
+        "home_guide_feat2": "Expert in Culture & Heritage",
+        "home_guide_feat3": "Temple & City Tours",
+        "home_guide_feat4": "Personalized Experience"
     }
 };
 
