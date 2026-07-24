@@ -86,14 +86,9 @@ class AppRouter {
         if (window.location.hash === '') {
             window.location.hash = api.isAuthenticated() ? '#chat' : '#login';
         }
-        if (!userId && view !== 'login') {
-            window.location.hash = '#login';
-            return;
-        }
-        
         // Auto-redirect away from login if already authenticated
-        if (userId && view === 'login') {
-            window.location.hash = '#chat';
+        if (!userId && view !== 'login' && view !== 'places') {
+            window.location.hash = '#login';
             return;
         }
 
