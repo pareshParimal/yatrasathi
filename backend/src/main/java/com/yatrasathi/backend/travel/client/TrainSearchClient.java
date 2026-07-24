@@ -104,6 +104,7 @@ public class TrainSearchClient {
         t1.put("durationMinutes", 420); t1.put("price", 1505);
         t1.put("classes", List.of("CC", "EC")); t1.put("availability", "AVAILABLE");
         t1.put("days", List.of("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"));
+        t1.put("isFallback", true);
         trains.add(t1);
 
         Map<String, Object> t2 = new HashMap<>();
@@ -112,6 +113,7 @@ public class TrainSearchClient {
         t2.put("durationMinutes", 1025); t2.put("price", 2350);
         t2.put("classes", List.of("3A", "2A", "1A")); t2.put("availability", "AVAILABLE");
         t2.put("days", List.of("Mon", "Wed", "Fri", "Sun"));
+        t2.put("isFallback", true);
         trains.add(t2);
 
         Map<String, Object> t3 = new HashMap<>();
@@ -120,6 +122,7 @@ public class TrainSearchClient {
         t3.put("durationMinutes", 540); t3.put("price", 1275);
         t3.put("classes", List.of("SL", "3A", "2A")); t3.put("availability", "RAC");
         t3.put("days", List.of("Tue", "Thu", "Sat"));
+        t3.put("isFallback", true);
         trains.add(t3);
 
         return trains.stream().filter(t -> {

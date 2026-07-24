@@ -29,7 +29,7 @@ public class BookingService {
     /**
      * Search for real trains between two cities with user-defined filters.
      */
-    @Cacheable(value = "trains", key = "{#fromCity, #toCity, #travelDate, #departureFrom, #departureTo, #maxDurationHours, #language}")
+    @Cacheable(value = "trains", key = "{#fromCity, #toCity, #travelDate, #departureFrom, #departureTo, #maxDurationHours, #language}", unless = "#result == null or #result.isEmpty() or #result[0].get('isFallback') == true")
     public List<Map<String, Object>> searchTrains(
             String fromCity,
             String toCity,
