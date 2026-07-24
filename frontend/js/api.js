@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+// Determine if we are in production or local development based on hostname
+const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_BASE_URL = isProd ? 'https://yatrasathi-production.up.railway.app/api/v1' : 'http://localhost:8080/api/v1';
 
 // We will read the user ID and language from localStorage
 const getUserId = () => localStorage.getItem('yatra_user_id') || '';
@@ -88,4 +90,11 @@ export const api = {
     addEmergencyContact: (data) => fetchAPI('/location/contacts', { method: 'POST', body: JSON.stringify(data) }),
     deleteEmergencyContact: (contactId) => fetchAPI(`/location/contacts/${contactId}`, { method: 'DELETE' }),
     getTelegramUsers: () => fetchAPI('/location/telegram-users'),
+
+    // TTS
+    generateSpeech: (text, languageCode) => fetch(`${BASE_URL}/tts/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, languageCode })
+    })
 };

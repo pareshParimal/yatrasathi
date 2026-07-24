@@ -109,31 +109,49 @@ export const renderChat = async (rootElement) => {
     let isListening = false;
     let recognition = null;
 
-    // Initialize Web Speech API for TTS
-    const speakText = (text) => {
-        if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
-        
-        // Cancel any ongoing speech
-        window.speechSynthesis.cancel();
-        
+    const speakText = async (text) => {
+        if (!isVoiceEnabled || !text) return;
+
+        // Clean up text by removing emojis and asterisks that might confuse the TTS
+        text = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+        text = text.replace(/\*/g, '');
+
+        // Detect if text contains Hindi characters
+        const isHindi = /[\u0900-\u097F]/.test(text);
+        const targetLang = isHindi ? 'hi-IN' : 'en-IN';
+
+        try {
+            const response = await api.generateSpeech(text, targetLang);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                
+                // Keep track of the current audio if we want to stop it via toggle button
+                window.currentChatAudio = audio;
+                audio.play();
+            } else {
+                console.warn("Sarvam TTS failed, fallback to native.");
+                fallbackTTS(text, isHindi);
+            }
+        } catch (err) {
+            console.error("Audio API error:", err);
+            fallbackTTS(text, isHindi);
+        }
+    };
+
+    const fallbackTTS = (text, isHindi) => {
         const utterance = new SpeechSynthesisUtterance(text);
-        // Optimize for elderly: slightly slower rate, higher pitch for clarity
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
         
-        // Detect if text contains Hindi characters
-        const isHindi = /[\u0900-\u097F]/.test(text);
-        
-        // Try to find the best voice available
         const voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
         
         if (isHindi) {
-            // Prefer Google Hindi for better quality, fallback to any Hindi
             selectedVoice = voices.find(v => v.lang.includes('hi-IN') && v.name.includes('Google')) || 
                             voices.find(v => v.lang.includes('hi-IN'));
         } else {
-            // Prefer Google Indian English, fallback to any Indian English, then any Google English
             selectedVoice = voices.find(v => v.lang.includes('en-IN') && v.name.includes('Google')) || 
                             voices.find(v => v.lang.includes('en-IN')) ||
                             voices.find(v => v.lang.includes('en-') && v.name.includes('Google'));
@@ -153,7 +171,10 @@ export const renderChat = async (rootElement) => {
             btnToggleVoice.innerHTML = '<i data-lucide="volume-2"></i> Voice: ON';
         } else {
             btnToggleVoice.innerHTML = '<i data-lucide="volume-x"></i> Voice: OFF';
-            window.speechSynthesis.cancel(); // Stop speaking immediately
+            window.speechSynthesis.cancel(); // Stop fallback speaking immediately
+            if (window.currentChatAudio) {
+                window.currentChatAudio.pause();
+            }
         }
         lucide.createIcons();
     });

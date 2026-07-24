@@ -73,11 +73,17 @@ public class DatabaseSeeder implements CommandLineRunner {
         jsonContent.put("historical", "Mahabalipuram (Mamallapuram) was a major seaport of the ancient Pallava kingdom. Important rulers like Mahendravarman I and Narasimhavarman I and II commissioned these magnificent rock-cut caves and structural temples in the 7th and 8th centuries.");
         jsonContent.put("cultural", "It is a UNESCO World Heritage site known for the Shore Temple, Pancha Rathas, and Arjuna's Penance, reflecting the zenith of Pallava art and culture.");
         
+        com.fasterxml.jackson.databind.node.ObjectNode jsonContentHi = mapper.createObjectNode();
+        jsonContentHi.put("historical", "महाबलीपुरम (मामल्लपुरम) प्राचीन पल्लव साम्राज्य का एक प्रमुख बंदरगाह था। महेंद्रवर्मन प्रथम और नरसिंहवर्मन प्रथम और द्वितीय जैसे महत्वपूर्ण शासकों ने 7वीं और 8वीं शताब्दी में इन शानदार रॉक-कट गुफाओं और संरचनात्मक मंदिरों का निर्माण कराया था।");
+        jsonContentHi.put("cultural", "यह एक यूनेस्को विश्व धरोहर स्थल है जो शोर मंदिर, पंच रथ और अर्जुन तपस्या के लिए जाना जाता है, जो पल्लव कला और संस्कृति के चरमोत्कर्ष को दर्शाता है।");
+        
         PlaceContent content = PlaceContent.builder()
                 .place(mahabalipuram)
                 .title("The Pallava Empire's Architectural Marvel")
+                .titleHi("पल्लव साम्राज्य का स्थापत्य चमत्कार")
                 .contentType("HISTORICAL")
                 .content(jsonContent)
+                .contentHi(jsonContentHi)
                 .status("PUBLISHED")
                 .build();
         placeContentRepository.save(content);

@@ -589,10 +589,8 @@ export const renderPlanner = async (rootElement) => {
             document.getElementById('display-train').innerText = selectedTrain;
             document.getElementById('display-hotel').innerText = selectedHotel;
 
-            if (selectedTrain) {
-                const foodBtn = document.getElementById('btn-order-food');
-                foodBtn.style.display = 'flex';
-            }
+            const foodBtn = document.getElementById('btn-order-food');
+            foodBtn.style.display = 'flex';
 
             // Generate itinerary in background
             api.generateItinerary(currentPlanId).then(() => {
@@ -648,7 +646,7 @@ export const renderPlanner = async (rootElement) => {
         lucide.createIcons();
 
         try {
-            const pnrToUse = prompt("Enter a valid PNR to view real eCatering data (or leave blank for demo PNR)", "8937018601") || generatedPnr;
+            const pnrToUse = prompt("Enter a valid PNR to view real eCatering data (or leave blank for demo PNR)", "2159351649") || generatedPnr;
             const response = await api.getTrainFoodOptions(pnrToUse);
             trainFoodData = response.result;
 

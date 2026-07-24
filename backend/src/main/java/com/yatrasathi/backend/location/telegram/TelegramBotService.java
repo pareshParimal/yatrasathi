@@ -111,6 +111,7 @@ public class TelegramBotService {
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(response -> {
+                    log.info("Telegram getUpdates response: {}", response);
                     LinkedHashMap<String, Map<String, String>> uniqueUsers = new LinkedHashMap<>();
                     List<Map<String, Object>> results = (List<Map<String, Object>>) response.getOrDefault("result", List.of());
 

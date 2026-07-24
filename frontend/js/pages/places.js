@@ -76,14 +76,24 @@ export const renderPlaces = async (rootElement) => {
 
             document.getElementById('place-content-area').style.display = 'block';
             const selectedPlaceName = document.getElementById('place-selector').options[document.getElementById('place-selector').selectedIndex].text.split(',')[0];
+            const lang = localStorage.getItem('yatra_lang') || 'hi';
             
             // Populate content
             let dataNode = {};
             if (contentList && contentList.length > 0) {
                 const content = contentList[0];
-                dataNode = content.content || {};
                 
-                document.getElementById('place-title').innerText = content.title || 'Historical Overview';
+                let title = content.title || 'Historical Overview';
+                if (lang === 'hi' && content.titleHi) {
+                    title = content.titleHi;
+                }
+                
+                dataNode = content.content || {};
+                if (lang === 'hi' && content.contentHi) {
+                    dataNode = content.contentHi;
+                }
+                
+                document.getElementById('place-title').innerText = title;
                 document.getElementById('place-history').innerText = dataNode.historical || dataNode.historicalText || 'No history available.';
                 document.getElementById('place-culture').innerText = dataNode.cultural || dataNode.culturalText || 'No cultural info available.';
                 
@@ -100,14 +110,60 @@ export const renderPlaces = async (rootElement) => {
                 document.getElementById('place-culture').insertAdjacentHTML('afterend', ttsHtml);
                 lucide.createIcons();
                 
-                document.getElementById('btn-audio-guide').addEventListener('click', () => {
+                document.getElementById('btn-audio-guide').addEventListener('click', async () => {
+                    const lang = localStorage.getItem('yatra_lang') || 'hi';
                     const history = dataNode.historical || dataNode.historicalText || '';
                     const culture = dataNode.cultural || dataNode.culturalText || '';
-                    const textToRead = `Welcome to ${selectedPlaceName}. ${history} ${culture}`;
-                    const utterance = new SpeechSynthesisUtterance(textToRead);
-                    utterance.rate = 0.85; // Slower for elderly
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(utterance);
+                    const intro = lang === 'hi' ? `${selectedPlaceName} में आपका स्वागत है।` : `Welcome to ${selectedPlaceName}.`;
+                    const textToRead = `${intro} ${history} ${culture}`;
+                    
+                    const btn = document.getElementById('btn-audio-guide');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i data-lucide="loader"></i> Generating...';
+                    btn.disabled = true;
+                    lucide.createIcons();
+                    
+                    try {
+                        const targetLang = (lang === 'hi' || /[\\u0900-\\u097F]/.test(textToRead)) ? 'hi-IN' : 'en-IN';
+                        const response = await api.generateSpeech(textToRead, targetLang);
+                        
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = URL.createObjectURL(blob);
+                            const audio = new Audio(url);
+                            
+                            btn.innerHTML = '<i data-lucide="stop-circle"></i> Playing...';
+                            lucide.createIcons();
+                            
+                            audio.onended = () => {
+                                btn.innerHTML = originalHtml;
+                                btn.disabled = false;
+                                lucide.createIcons();
+                            };
+                            
+                            // To allow stopping, we could store it globally or on the element
+                            btn.onclick = () => {
+                                audio.pause();
+                                btn.innerHTML = originalHtml;
+                                btn.disabled = false;
+                                btn.onclick = null; // restore original listener if we had named it, but simple approach here
+                                lucide.createIcons();
+                            };
+                            
+                            audio.play();
+                        } else {
+                            alert("Failed to generate high-quality audio.");
+                            btn.innerHTML = originalHtml;
+                            btn.disabled = false;
+                            lucide.createIcons();
+                        }
+                    } catch (err) {
+                        console.error("Audio API error:", err);
+                        alert("Failed to connect to Sarvam Audio service.");
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                        lucide.createIcons();
+                    }
                 });
             } else {
                 document.getElementById('place-history').innerText = 'No storytelling content available.';
@@ -153,7 +209,13 @@ export const renderPlaces = async (rootElement) => {
                 "Jyotirlingas of Andhra Pradesh": `https://www.youtube.com/embed/UO39dgB8gYo`,
                 "Jyotirlingas of Tamil Nadu": `https://www.youtube.com/embed/UO39dgB8gYo`
             };
-            const videoUrl = videoMap[selectedPlaceName] || `https://www.youtube.com/embed/nbRmsHPFIKo`;
+            
+            let videoUrl = videoMap[selectedPlaceName] || `https://www.youtube.com/embed/nbRmsHPFIKo`;
+            if (lang === 'hi' && selectedPlaceName === "Mahabalipuram") {
+                videoUrl = `https://www.youtube.com/embed/w5-y6_Q7F9Y`; // Placeholder for Hindi Video
+            } else if (lang === 'hi') {
+                videoUrl += "?cc_load_policy=1&cc_lang_pref=hi&hl=hi";
+            }
             
             const videoContainer = document.querySelector('.card[style*="height: 400px"]');
             if (videoContainer) {
@@ -187,7 +249,7 @@ export const renderPlaces = async (rootElement) => {
                     
                     const history = dataNode.historical || dataNode.historicalText || '';
                     const culture = dataNode.cultural || dataNode.culturalText || '';
-                    const fullText = (history + " " + culture).replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|").filter(s => s.trim().length > 0);
+                    const fullText = (history + " " + culture).replace(/([.?!।])\s*/g, "$1|").split("|").filter(s => s.trim().length > 0);
                     
                     let currentSentence = 0;
                     let currentSlide = 0;
@@ -216,25 +278,64 @@ export const renderPlaces = async (rootElement) => {
                             slides[currentSlide].classList.add('active');
                         }
                         
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.rate = 0.9;
-                        
-                        utterance.onend = () => {
-                            currentSentence++;
-                            caption.classList.remove('show');
-                            setTimeout(speakNext, 400); // slight pause between sentences
+                        // Fallback logic if Sarvam fails
+                        const fallbackTTS = () => {
+                            const utterance = new SpeechSynthesisUtterance(text);
+                            utterance.rate = 0.9;
+                            const targetLang = (localStorage.getItem('yatra_lang') === 'hi' || /[\\u0900-\\u097F]/.test(text)) ? 'hi-IN' : 'en-IN';
+                            
+                            const voices = window.speechSynthesis.getVoices();
+                            let selectedVoice = null;
+                            if (targetLang === 'hi-IN') {
+                                selectedVoice = voices.find(v => v.lang.includes('hi-IN') && v.name.includes('Google')) || 
+                                                voices.find(v => v.lang.includes('hi-IN'));
+                            }
+                            if (selectedVoice) {
+                                utterance.voice = selectedVoice;
+                            } else {
+                                utterance.lang = targetLang;
+                            }
+                            
+                            utterance.onend = () => {
+                                currentSentence++;
+                                caption.classList.remove('show');
+                                setTimeout(speakNext, 400); 
+                            };
+                            utterance.onerror = () => { isPlaying = false; };
+                            window.speechSynthesis.speak(utterance);
                         };
-                        
-                        utterance.onerror = (e) => {
-                            console.error("Speech error", e);
-                            isPlaying = false;
-                        };
-                        
-                        window.speechSynthesis.speak(utterance);
+
+                        try {
+                            const targetLang = (localStorage.getItem('yatra_lang') === 'hi' || /[\\u0900-\\u097F]/.test(text)) ? 'hi-IN' : 'en-IN';
+                            api.generateSpeech(text, targetLang).then(async response => {
+                                if (response.ok) {
+                                    const blob = await response.blob();
+                                    const url = URL.createObjectURL(blob);
+                                    const audio = new Audio(url);
+                                    
+                                    // Make audio accessible to stopBtn
+                                    window.currentCinematicAudio = audio;
+                                    
+                                    audio.onended = () => {
+                                        currentSentence++;
+                                        caption.classList.remove('show');
+                                        setTimeout(speakNext, 400);
+                                    };
+                                    audio.onerror = () => fallbackTTS();
+                                    audio.play();
+                                } else {
+                                    fallbackTTS();
+                                }
+                            }).catch(() => fallbackTTS());
+                        } catch(e) {
+                            fallbackTTS();
+                        }
                     };
                     
                     playBtn.addEventListener('click', () => {
                         window.speechSynthesis.cancel();
+                        if (window.currentCinematicAudio) window.currentCinematicAudio.pause();
+                        
                         if (isPlaying) {
                             isPlaying = false;
                             playBtn.innerHTML = '<i data-lucide="play" style="width:20px;height:20px;color:white;fill:white;"></i>';
@@ -249,6 +350,7 @@ export const renderPlaces = async (rootElement) => {
                     
                     stopBtn.addEventListener('click', () => {
                         window.speechSynthesis.cancel();
+                        if (window.currentCinematicAudio) window.currentCinematicAudio.pause();
                         isPlaying = false;
                         currentSentence = 0;
                         caption.classList.remove('show');

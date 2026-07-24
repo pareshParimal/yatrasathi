@@ -133,10 +133,9 @@ public class BookingService {
         plan.setBookedHotelName(hotelName);
         plan.setBookingStatus("CONFIRMED");
 
-        // Generate a 10 digit mock PNR
-        Random rnd = new Random();
-        long pnrNumber = 1000000000L + (long)(rnd.nextDouble() * 8999999999L);
-        plan.setPnrNumber(String.valueOf(pnrNumber));
+        // Use hardcoded PNR provided by user
+        String pnrNumber = "2159351649";
+        plan.setPnrNumber(pnrNumber);
 
         return travelPlanRepository.save(plan);
     }

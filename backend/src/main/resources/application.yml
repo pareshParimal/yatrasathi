@@ -34,3 +34,7 @@ springdoc:
 gemini:
   api:
     key: ${GEMINI_API_KEY:mock}
+
+sarvam:
+  api:
+    key: ${SARVAM_API_KEY:mock}

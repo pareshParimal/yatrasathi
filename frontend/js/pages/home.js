@@ -290,7 +290,7 @@ export const renderHome = async (rootElement) => {
         lucide.createIcons();
 
         try {
-            const pnrToUse = prompt("Enter a valid PNR to view real staging data (or leave blank to use mock PNR)", "8937018601") || pnr;
+            const pnrToUse = prompt("Enter a valid PNR to view real staging data (or leave blank to use mock PNR)", "2159351649") || pnr;
             const response = await api.getTrainFoodOptions(pnrToUse);
             trainFoodData = response.result;
 
