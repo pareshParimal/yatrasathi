@@ -82,10 +82,10 @@ class AppRouter {
             logoutBtn.style.display = 'none';
    //         emergencyBtn.style.display = 'none';
         }
-        if (!userId && view !== 'login') {
-            window.location.hash = '#login';
-            return;
-        }
+       if (!userId && view !== 'login' && view !== 'places') {
+           window.location.hash = '#login';
+           return;
+       }
         
         // Auto-redirect away from login if already authenticated
         if (userId && view === 'login') {
